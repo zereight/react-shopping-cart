@@ -5,4 +5,9 @@ interface ProductProps {
   price: string;
 }
 
-export { ProductProps };
+interface OrderState {
+  id: string;
+  orderedProductList: Array<{ id: string; amount: number }>;
+}
+
+export { ProductProps, OrderState };

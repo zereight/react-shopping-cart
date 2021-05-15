@@ -12,7 +12,7 @@ interface PaymentInfoBoxProps {
   price: string;
   buttonText: string;
   onClick: () => void;
-  isDisable: boolean;
+  isDisable?: boolean;
 }
 
 const PaymentInfoBox = ({

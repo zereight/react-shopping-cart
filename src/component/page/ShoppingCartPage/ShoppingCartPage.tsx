@@ -25,10 +25,16 @@ import {
 import { AMOUNT_COUNTER_FLAG, CONFIRM_MESSAGE, ROUTE } from '../../../constant';
 import { ProductProps } from '../../../type';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { AmountCounter, CheckBox, Header, PaymentInfoBox, TrashCanIcon } from '../..';
 import emptyImage from '../../../asset/img/empty_page.png';
-import RowProductItem from '../../common/ProductItem/RowProductItem/RowProductItem';
 import { numberWithCommas } from '../../../util';
+import {
+  AmountCounter,
+  CheckBox,
+  Header,
+  PaymentInfoBox,
+  RowProductItem,
+  TrashCanIcon,
+} from '../..';
 
 const ShoppingCartPage = () => {
   const history = useHistory();
@@ -88,7 +94,7 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const onClickDeleteButton = (targetId: string | null) => {
+  const onClickDeleteButton = async (targetId: string | null) => {
     if (!window.confirm(CONFIRM_MESSAGE.DELETE)) return;
 
     if (targetId) {
@@ -112,7 +118,7 @@ const ShoppingCartPage = () => {
           (productId) => !checkedProductList.includes(productId)
         ),
       };
-      const res = Promise.all(
+      const res = await Promise.all(
         myShoppingCartProductIds.map((productId: string) =>
           dispatch(updateProductAmount(productId))
         )
@@ -125,7 +131,7 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const onClickPaymentButton = () => {
+  const onClickPaymentButton = async () => {
     if (!window.confirm(CONFIRM_MESSAGE.PURCHASE)) return;
 
     const newContent = {
@@ -139,7 +145,7 @@ const ShoppingCartPage = () => {
     }));
 
     dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
-    const res = Promise.all(
+    const res = await Promise.all(
       checkedProductList.map((productId: string) =>
         dispatch(updateProductAmount(productId))
       )

@@ -4,10 +4,10 @@ import { Container } from './Button.styles';
 interface ButtonProps {
   children: React.ReactNode;
   onClick: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
-const Button = ({ children, onClick, disabled }: ButtonProps) => (
+const Button = ({ children, onClick, disabled = false }: ButtonProps) => (
   <Container disabled={disabled} onClick={onClick}>
     {children}
   </Container>

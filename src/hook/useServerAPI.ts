@@ -1,5 +1,5 @@
 import firebase from 'firebase';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { requestTable } from '../api/request';
 import { activateLoading, deactivateLoading } from '../redux/action';
@@ -8,7 +8,7 @@ import { store } from '../redux/store';
 const useServerAPI = (defaultValue: any, schema: string | number) => {
   const [value, setValue] = useState(defaultValue);
 
-  const getAllData = useCallback(async () => {
+  const getAllData = async () => {
     try {
       store.dispatch(activateLoading());
       const data = await requestTable.GET(schema);
@@ -19,7 +19,7 @@ const useServerAPI = (defaultValue: any, schema: string | number) => {
     } finally {
       store.dispatch(deactivateLoading());
     }
-  }, [defaultValue, schema]);
+  };
 
   const getData = async (targetId: string | undefined) => {
     try {
@@ -85,7 +85,7 @@ const useServerAPI = (defaultValue: any, schema: string | number) => {
     getAllData();
 
     return () => setValue(defaultValue);
-  }, [defaultValue, getAllData]);
+  }, []);
 
   return { value, setValue, getAllData, getData, putData, postData };
 };

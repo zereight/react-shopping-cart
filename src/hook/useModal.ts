@@ -1,6 +1,6 @@
-import { MouseEvent, useState } from 'react';
+import { MouseEvent, useEffect, useState } from 'react';
 
-const useModal = (defaultValue: any) => {
+const useModal = (defaultValue: boolean) => {
   const [isModalOpen, setModalState] = useState(defaultValue);
 
   const onClickClose = (event: MouseEvent<HTMLDivElement>): void => {
@@ -23,6 +23,8 @@ const useModal = (defaultValue: any) => {
   const toggle = () => {
     setModalState((state: any) => !state);
   };
+
+  useEffect(() => () => setModalState(false), []);
 
   return {
     isModalOpen,
