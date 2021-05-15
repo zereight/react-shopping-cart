@@ -1,26 +1,55 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from 'react-router-dom';
+import { ProductListPage } from './component/page';
+import { GlobalNavbar } from './component/template';
+import { ROUTE } from './constant';
 
-function App() {
+import GlobalStyles from './style/GlobalStyles';
+
+const App = () => {
+  // const dispatch = useDispatch();
+  // const loading = useSelector((state) => state.loadingReducer.loading);
+
+  // useEffect(() => {
+  //   dispatch(updateProductItemsAsync());
+  //   dispatch(getMyShoppingCartAsync());
+  // }, [dispatch]);
+
+  console.log('app started');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyles />
+      <Router>
+        <GlobalNavbar />
+
+        <Switch>
+          <Route exact path={ROUTE.HOME} component={ProductListPage} />
+          {/* <Route exact path={ROUTE.ORDER_LIST} component={OrderListPage} />
+          <Route
+            exact
+            path={ROUTE.ORDER_CHECKOUT}
+            component={OrderCheckoutPage}
+          />
+          <Route
+            exact
+            path={ROUTE.SHOPPING_CART}
+            component={ShoppingCartPage}
+          /> */}
+          <Route component={() => <Redirect to={ROUTE.HOME} />} />
+        </Switch>
+      </Router>
+      {/* {loading && (
+        <ModalPortal>
+          <Spinner />
+        </ModalPortal>
+      )} */}
+    </>
   );
-}
+};
 
 export default App;
