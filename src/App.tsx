@@ -1,23 +1,29 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   BrowserRouter as Router,
   Redirect,
   Route,
   Switch,
 } from 'react-router-dom';
-import { ProductListPage } from './component/page';
+import { Spinner } from './component';
+import { ProductListPage, ShoppingCartPage } from './component/page';
 import { GlobalNavbar } from './component/template';
 import { ROUTE } from './constant';
+import { ModalPortal } from './portal';
+import { getMyShoppingCartAsync, updateProductItemsAsync } from './redux/action';
+import { RootState } from './redux/store';
 
 import GlobalStyles from './style/GlobalStyles';
 
 const App = () => {
-  // const dispatch = useDispatch();
-  // const loading = useSelector((state) => state.loadingReducer.loading);
+  const dispatch = useDispatch();
+  const loading = useSelector(({loadingReducer}: RootState) => loadingReducer.loading);
 
-  // useEffect(() => {
-  //   dispatch(updateProductItemsAsync());
-  //   dispatch(getMyShoppingCartAsync());
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(updateProductItemsAsync());
+    dispatch(getMyShoppingCartAsync());
+  }, [dispatch]);
 
   console.log('app started');
 
@@ -29,25 +35,26 @@ const App = () => {
 
         <Switch>
           <Route exact path={ROUTE.HOME} component={ProductListPage} />
+          <Route
+            exact
+            path={ROUTE.SHOPPING_CART}
+            component={ShoppingCartPage}
+          />
           {/* <Route exact path={ROUTE.ORDER_LIST} component={OrderListPage} />
           <Route
             exact
             path={ROUTE.ORDER_CHECKOUT}
             component={OrderCheckoutPage}
           />
-          <Route
-            exact
-            path={ROUTE.SHOPPING_CART}
-            component={ShoppingCartPage}
-          /> */}
+           */}
           <Route component={() => <Redirect to={ROUTE.HOME} />} />
         </Switch>
       </Router>
-      {/* {loading && (
+      {loading && (
         <ModalPortal>
           <Spinner />
         </ModalPortal>
-      )} */}
+      )}
     </>
   );
 };

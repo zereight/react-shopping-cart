@@ -1,7 +1,7 @@
 import { SVG } from './TrashIcon.styles';
 
 interface TrashCanIconProps {
-  scale: string;
+  scale?: string;
 }
 
 const TrashCanIcon = ({ scale = '1.0' }: TrashCanIconProps) => (

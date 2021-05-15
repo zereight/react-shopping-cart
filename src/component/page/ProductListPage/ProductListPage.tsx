@@ -54,7 +54,7 @@ const ProductListPage = () => {
 
   const [showLikedProduct, setShowLikedProduct] = useState(false);
 
-  const { open: openModal, onClickClose: onClickModalClose } = useModal(false);
+  const { isModalOpen, open: openModal, onClickClose: onClickModalClose } = useModal(false);
 
   const likedProductList = likedProductIdList.map((likedProductId) =>
     productList.find((product: { id: string }) => likedProductId === product.id)
@@ -134,7 +134,7 @@ const ProductListPage = () => {
       </Container>
 
       <ModalPortal>
-        <Modal onClickClose={onClickModalClose}>
+        {isModalOpen && <Modal onClickClose={onClickModalClose}>
           <SuccessAddedModal
             productList={
               likedProductList.length >= 3 ? likedProductList : productList
@@ -142,7 +142,7 @@ const ProductListPage = () => {
             openModal={openModal}
             onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
           />
-        </Modal>
+        </Modal>}
       </ModalPortal>
       <PageButtonContainer>
         <Button onClick={onClickPrevPage} disabled={pageIndex === 0}>

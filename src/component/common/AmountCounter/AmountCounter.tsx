@@ -1,3 +1,4 @@
+
 import {
   Container,
   Input,
@@ -8,9 +9,9 @@ import {
 } from './AmountCounter.styles';
 
 interface AmountCounterProps {
-  min: number;
-  max: number;
-  onChange: () => void;
+  min?: number;
+  max?: number;
+  onChange?: () => void;
   value: number;
   onClickUp: () => void;
   onClickDown: () => void;
@@ -19,7 +20,7 @@ interface AmountCounterProps {
 const AmountCounter = ({
   min = 1,
   max = 20,
-  onChange,
+  onChange = () => {},
   value,
   onClickUp,
   onClickDown,

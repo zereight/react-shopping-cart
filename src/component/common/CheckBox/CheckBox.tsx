@@ -1,19 +1,20 @@
+import { MouseEvent } from 'react';
 import { Input, Label } from './CheckBox.styles';
 
 interface CheckBoxProps {
   id: string;
-  size: string;
-  onClick: () => void;
-  onChange: () => void;
+  size?: string;
+  onClick: (event: MouseEvent<HTMLDivElement>) => void;
+  onChange?: () => void;
   isChecked: boolean;
 }
 
 const CheckBox = ({
   id,
-  size = "28px",
+  size = '28px',
   onClick,
-  onChange,
-  isChecked=false,
+  onChange = () => {},
+  isChecked = false,
 }: CheckBoxProps) => (
   <>
     <Input
