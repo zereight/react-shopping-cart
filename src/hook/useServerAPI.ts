@@ -12,6 +12,7 @@ const useServerAPI = (defaultValue: any, schema: string | number) => {
     try {
       store.dispatch(activateLoading());
       const data = await requestTable.GET(schema);
+
       setValue(data);
     } catch (error) {
       console.error(error);

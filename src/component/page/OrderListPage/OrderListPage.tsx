@@ -1,24 +1,21 @@
-import { useHistory, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { numberWithCommas } from '../../../util';
-import { RootState } from '../../../redux/store';
-import { useModal, useServerAPI } from '../../../hook';
+import { RouteComponentProps } from 'react-router-dom';
 import { ROUTE, SCHEMA } from '../../../constant';
-import { OrderState, ProductProps } from '../../../type';
+import { useModal, useServerAPI } from '../../../hook';
 import {
   increaseProductAmount,
   updateShoppingCartItemsAsync,
 } from '../../../redux/action';
+import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { Button, Header, Modal, RowProductItem } from '../..';
-import { OrderContainer, SuccessAddedModal } from '../../template';
-import { Container, OrderItemContainer } from './OrderListPage.styles';
-import { ModalPortal } from '../../../portal';
+import { ProductType } from '../../../type';
+import Header from '../../atom/Header/Header';
+import Modal from '../../organism/Modal/Modal';
+import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
+import OrderListLayout from '../../template/OrderListLayout/OrderListLayout';
 
-const OrderListPage = () => {
-  const location = useLocation();
+const OrderListPage = ({ history, location }: RouteComponentProps) => {
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const {
     myShoppingCartId,
@@ -47,9 +44,13 @@ const OrderListPage = () => {
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  const likedProductList = likedProductIdList.map((likedProductId) =>
-    productList.find((product: ProductProps) => likedProductId === product.id)
-  );
+  const likedProductList: Array<ProductType> = [];
+  likedProductIdList.forEach((likedProductId) => {
+    const targetProduct = productList.find(
+      (product: ProductType) => likedProductId === product.id
+    );
+    if (targetProduct) likedProductList.push(targetProduct);
+  });
 
   const onClickShoppingCartButton = (productId: string) => {
     if (myShoppingCartProductIds.includes(productId)) {
@@ -68,45 +69,23 @@ const OrderListPage = () => {
     <ScreenContainer route={location.pathname}>
       <Header>주문 목록</Header>
 
-      <Container>
-        {orderList.map((order: OrderState) => (
-          <OrderContainer key={order.id} orderId={order.id}>
-            {order.orderedProductList?.map(({ id, amount }) => {
-              const { img, name, price } = productList.find(
-                (product: ProductProps) => product.id === id
-              );
+      <OrderListLayout
+        orderList={orderList}
+        productList={productList}
+        onClickShoppingCartButton={onClickShoppingCartButton}
+      />
 
-              return (
-                <OrderItemContainer key={id}>
-                  <RowProductItem
-                    img={img}
-                    name={name}
-                    price={`${numberWithCommas(price * amount)} 원 / `}
-                    amount={`수량: ${amount} 개`}
-                  />
-                  <Button onClick={() => onClickShoppingCartButton(id)}>
-                    장바구니
-                  </Button>
-                </OrderItemContainer>
-              );
-            })}
-          </OrderContainer>
-        ))}
-      </Container>
-
-      <ModalPortal>
-        {isModalOpen && (
-          <Modal onClickClose={onClickModalClose}>
-            <SuccessAddedModal
-              productList={
-                likedProductList.length >= 3 ? likedProductList : productList
-              }
-              openModal={openModal}
-              onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
-            />
-          </Modal>
-        )}
-      </ModalPortal>
+      {isModalOpen && (
+        <Modal onClickClose={onClickModalClose}>
+          <SuccessAddedModal
+            productList={
+              likedProductList.length >= 3 ? likedProductList : productList
+            }
+            openModal={openModal}
+            onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
+          />
+        </Modal>
+      )}
     </ScreenContainer>
   );
 };

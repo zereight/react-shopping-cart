@@ -23,6 +23,7 @@
     "react/jsx-indent": "off",
     "indent": "off",
     "import/no-extraneous-dependencies": "off",
-    "react/require-default-props": "off"
+    "react/require-default-props": "off",
+    "@typescript-eslint/no-unused-expressions": 2
   }
 }

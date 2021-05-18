@@ -1,20 +1,7 @@
-import { MouseEvent, useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
+import { MouseEvent, useState } from 'react';
+import { RouteComponentProps } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Container,
-  OptionContainer,
-  ShoppingCartContainer,
-  ShoppingCartListTitle,
-  ShoppingCartList,
-  PaymentInfoBoxContainer,
-  ShoppingCartItemContainer,
-  ShoppingCartItem,
-  ShoppingCartItemOption,
-  DeleteButton,
-  EmptyPageImage,
-} from './ShoppingCartPage.styles';
-import { RootState } from '../../../redux/store';
+import { AppDispatch, RootState } from '../../../redux/store';
 import {
   decreaseProductAmount,
   increaseProductAmount,
@@ -23,23 +10,16 @@ import {
   updateShoppingCartItemsAsync,
 } from '../../../redux/action';
 import { AMOUNT_COUNTER_FLAG, CONFIRM_MESSAGE, ROUTE } from '../../../constant';
-import { ProductProps } from '../../../type';
-import ScreenContainer from '../../../style/ScreenContainer';
-import emptyImage from '../../../asset/img/empty_page.png';
-import { numberWithCommas } from '../../../util';
-import {
-  AmountCounter,
-  CheckBox,
-  Header,
-  PaymentInfoBox,
-  RowProductItem,
-  TrashCanIcon,
-} from '../..';
 
-const ShoppingCartPage = () => {
-  const history = useHistory();
-  const location = useLocation();
-  const dispatch = useDispatch();
+import ScreenContainer from '../../../style/ScreenContainer';
+
+import { ProductType } from '../../../type';
+import Header from '../../atom/Header/Header';
+
+import ShoppingCartLayout from '../../template/ShoppingCartLayout/ShoppingCartLayout';
+
+const ShoppingCartPage = ({ history, location }: RouteComponentProps) => {
+  const dispatch = useDispatch<AppDispatch>();
 
   const {
     myShoppingCartId,
@@ -65,7 +45,19 @@ const ShoppingCartPage = () => {
 
   const [isAllChecked, setAllChecked] = useState(false);
 
-  const [expectedPrice, setExpectedPrice] = useState(0);
+  const expectedPrice = checkedProductList.reduce(
+    (acc: number, productId: string) => {
+      const amount = productAmountDict[productId] || 0;
+      const targetProduct = productList.find(
+        (product: ProductType) => product.id === productId
+      );
+
+      if (!targetProduct) return acc;
+
+      return acc + Number(targetProduct.price) * amount;
+    },
+    0
+  );
 
   const onClickAllCheckBox = () => {
     const newAllCheckedState = !isAllChecked;
@@ -94,7 +86,7 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const onClickDeleteButton = async (targetId: string | null) => {
+  const onClickDeleteButton = (targetId: string | null): void => {
     if (!window.confirm(CONFIRM_MESSAGE.DELETE)) return;
 
     if (targetId) {
@@ -103,14 +95,18 @@ const ShoppingCartPage = () => {
           (productId) => productId !== targetId
         ),
       };
-      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
-      dispatch(updateProductAmount(targetId));
-      dispatch(
-        updateCheckedProductItems(
-          checkedProductList.filter(
-            (checkedProductId: string) => checkedProductId !== targetId
-          )
-        )
+      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent)).then(
+        () =>
+          Promise.all([
+            dispatch(updateProductAmount(targetId)),
+            dispatch(
+              updateCheckedProductItems(
+                checkedProductList.filter(
+                  (checkedProductId: string) => checkedProductId !== targetId
+                )
+              )
+            ),
+          ])
       );
     } else {
       const newContent = {
@@ -118,20 +114,20 @@ const ShoppingCartPage = () => {
           (productId) => !checkedProductList.includes(productId)
         ),
       };
-      const res = await Promise.all(
-        myShoppingCartProductIds.map((productId: string) =>
-          dispatch(updateProductAmount(productId))
-        )
+
+      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent)).then(
+        () =>
+          Promise.all([
+            myShoppingCartProductIds.map((productId: string) =>
+              dispatch(updateProductAmount(productId))
+            ),
+            dispatch(updateCheckedProductItems([])),
+          ])
       );
-
-      console.log('res', res);
-
-      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
-      dispatch(updateCheckedProductItems([]));
     }
   };
 
-  const onClickPaymentButton = async () => {
+  const onClickPaymentButton = () => {
     if (!window.confirm(CONFIRM_MESSAGE.PURCHASE)) return;
 
     const newContent = {
@@ -144,23 +140,24 @@ const ShoppingCartPage = () => {
       amount: productAmountDict[id],
     }));
 
-    dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
-    const res = await Promise.all(
-      checkedProductList.map((productId: string) =>
-        dispatch(updateProductAmount(productId))
+    dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent))
+      .then(() =>
+        Promise.all(
+          checkedProductList.map((productId: string) =>
+            dispatch(updateProductAmount(productId))
+          )
+        )
       )
-    );
+      .then(() => {
+        dispatch(updateCheckedProductItems([]));
 
-    console.log('res', res);
-
-    dispatch(updateCheckedProductItems([]));
-
-    history.push({
-      pathname: ROUTE.ORDER_CHECKOUT,
-      state: {
-        checkedItemList,
-      },
-    });
+        history.push({
+          pathname: ROUTE.ORDER_CHECKOUT,
+          state: {
+            checkedItemList,
+          },
+        });
+      });
   };
 
   const onClickAmountCounter = (productId: string, flag: string) => {
@@ -171,113 +168,22 @@ const ShoppingCartPage = () => {
     }
   };
 
-  useEffect(() => {
-    const newExpectedPrice = checkedProductList.reduce(
-      (acc: number, productId: string) => {
-        const amount = productAmountDict[productId] || 0;
-        const { price } = productList.find(
-          (product: ProductProps) => product.id === productId
-        );
-
-        return acc + price * amount;
-      },
-      0
-    );
-
-    setExpectedPrice(newExpectedPrice);
-  }, [
-    checkedProductList,
-    myShoppingCartProductIds,
-    productAmountDict,
-    productList,
-  ]);
-
   return (
     <ScreenContainer route={location.pathname}>
       <Header>장바구니</Header>
-      <Container>
-        {myShoppingCartProductIds.length === 0 ? (
-          <EmptyPageImage src={emptyImage} alt="empty page" />
-        ) : (
-          <>
-            <ShoppingCartContainer>
-              <OptionContainer>
-                <CheckBox
-                  id="all-check"
-                  onClick={onClickAllCheckBox}
-                  isChecked={isAllChecked}
-                />
-                <span>모두선택</span>
-                <DeleteButton
-                  onClick={() => onClickDeleteButton(null)}
-                  disabled={!checkedProductList.length}
-                >
-                  상품삭제
-                </DeleteButton>
-              </OptionContainer>
-
-              <ShoppingCartListTitle>{`장바구니 상품 (${myShoppingCartProductIds.length}개)`}</ShoppingCartListTitle>
-
-              <ShoppingCartList>
-                {myShoppingCartProductIds.map((productId: string) => {
-                  const isChecked: boolean =
-                    checkedProductList.includes(productId);
-                  const { img, name, price } = productList.find(
-                    ({ id }: ProductProps) => id === productId
-                  );
-                  const amount = productAmountDict[productId] || 1;
-                  if (!productAmountDict[productId]) {
-                    dispatch(updateProductAmount(productId));
-                  }
-
-                  return (
-                    <ShoppingCartItemContainer key={productId}>
-                      <ShoppingCartItem>
-                        <CheckBox
-                          id={productId}
-                          onClick={onClickCheckBox}
-                          isChecked={isChecked}
-                        />
-                        <RowProductItem img={img} name={name} />
-                      </ShoppingCartItem>
-
-                      <ShoppingCartItemOption>
-                        <button
-                          type="button"
-                          onClick={() => onClickDeleteButton(productId)}
-                        >
-                          <TrashCanIcon />
-                        </button>
-                        <AmountCounter
-                          value={amount}
-                          onClickUp={() =>
-                            onClickAmountCounter(productId, 'up')
-                          }
-                          onClickDown={() =>
-                            onClickAmountCounter(productId, 'down')
-                          }
-                        />
-                        <span>{`${numberWithCommas(price * amount)}원`}</span>
-                      </ShoppingCartItemOption>
-                    </ShoppingCartItemContainer>
-                  );
-                })}
-              </ShoppingCartList>
-            </ShoppingCartContainer>
-
-            <PaymentInfoBoxContainer>
-              <PaymentInfoBox
-                title="결제예상금액"
-                detailText="결제예상금액"
-                price={`${numberWithCommas(expectedPrice)} 원`}
-                buttonText={`주문하기(${checkedProductList.length}개)`}
-                onClick={onClickPaymentButton}
-                isDisable={!checkedProductList.length}
-              />
-            </PaymentInfoBoxContainer>
-          </>
-        )}
-      </Container>
+      <ShoppingCartLayout
+        productList={productList}
+        productAmountDict={productAmountDict}
+        onClickCheckBox={onClickCheckBox}
+        onClickAmountCounter={onClickAmountCounter}
+        myShoppingCartProductIds={myShoppingCartProductIds}
+        onClickAllCheckBox={onClickAllCheckBox}
+        isAllChecked={isAllChecked}
+        onClickDeleteButton={onClickDeleteButton}
+        checkedProductIdList={checkedProductList}
+        expectedPrice={expectedPrice}
+        onClickPaymentButton={onClickPaymentButton}
+      />
     </ScreenContainer>
   );
 };

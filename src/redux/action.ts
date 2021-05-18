@@ -1,4 +1,3 @@
-import firebase from 'firebase';
 import { requestTable } from '../api/request';
 import { CUSTOMER_ID, SCHEMA } from '../constant';
 
@@ -15,7 +14,7 @@ import {
   UPDATE_PRODUCT_AMOUNT_LIST,
   UPDATE_PRODUCT_ITEMS,
 } from './actionType';
-import { store } from './store';
+import { AppDispatch } from './store';
 
 const activateLoading = () => ({
   type: ACTIVATE_LOADING_SPINNER,
@@ -40,42 +39,35 @@ const updateProductAmount = (productId: string) => ({
   productId,
 });
 
-const updateCheckedProductItems = (productItems: any) => ({
+const updateCheckedProductItems = (productItems: Array<string>) => ({
   type: UPDATE_CHECKED_PRODUCT_ITEMS,
   productItems,
 });
 
-const updateProductItemsAsync =
-  () =>
-  async (
-    dispatch: (arg0: {
-      type: string;
-      productItems: firebase.firestore.DocumentData | undefined;
-    }) => void
-  ) => {
-    try {
-      store.dispatch(activateLoading());
-      const productItems = await requestTable.GET(SCHEMA.PRODUCT);
+const updateProductItemsAsync = (): any => async (dispatch: AppDispatch) => {
+  try {
+    dispatch(activateLoading());
+    const productItems = await requestTable.GET(SCHEMA.PRODUCT);
 
-      dispatch({
-        type: UPDATE_PRODUCT_ITEMS,
-        productItems,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      store.dispatch(deactivateLoading());
-    }
-  };
+    dispatch({
+      type: UPDATE_PRODUCT_ITEMS,
+      productItems,
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    dispatch(deactivateLoading());
+  }
+};
 
 const updateShoppingCartItemsAsync =
   (
     targetId: string | undefined,
-    content: { [x: string]: any; productIdList?: any }
-  ) =>
-  async (dispatch: (arg0: { type: string; productIdList: any }) => void) => {
+    content: { productIdList: Array<string> }
+  ): any =>
+  async (dispatch: AppDispatch) => {
     try {
-      store.dispatch(activateLoading());
+      dispatch(activateLoading());
       await requestTable.PUT(SCHEMA.SHOPPING_CART, targetId, content);
 
       dispatch({
@@ -85,35 +77,33 @@ const updateShoppingCartItemsAsync =
     } catch (error) {
       console.error(error);
     } finally {
-      store.dispatch(deactivateLoading());
+      dispatch(deactivateLoading());
     }
   };
 
-const getMyShoppingCartAsync =
-  () =>
-  async (dispatch: (arg0: { type: string; myShoppingCart: any }) => void) => {
-    try {
-      store.dispatch(activateLoading());
-      const shoppingCartList =
-        (await requestTable.GET(SCHEMA.SHOPPING_CART)) || [];
+const getMyShoppingCartAsync = (): any => async (dispatch: AppDispatch) => {
+  try {
+    dispatch(activateLoading());
+    const shoppingCartList =
+      (await requestTable.GET(SCHEMA.SHOPPING_CART)) || [];
 
-      dispatch({
-        type: GET_MY_SHOPPING_CART,
-        myShoppingCart: shoppingCartList[CUSTOMER_ID],
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      store.dispatch(deactivateLoading());
-    }
-  };
+    dispatch({
+      type: GET_MY_SHOPPING_CART,
+      myShoppingCart: shoppingCartList[CUSTOMER_ID],
+    });
+  } catch (error) {
+    console.log(error);
+  } finally {
+    dispatch(deactivateLoading());
+  }
+};
 
-const updatePageIndex = (pageIndex: any) => ({
+const updatePageIndex = (pageIndex: number) => ({
   type: UPDATE_PAGE_INDEX,
   pageIndex,
 });
 
-const toggleLikedProductList = (productId: any) => ({
+const toggleLikedProductList = (productId: string) => ({
   type: TOGGLE_LIKE_PRODUCT,
   productId,
 });

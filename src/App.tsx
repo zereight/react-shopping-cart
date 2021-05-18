@@ -6,14 +6,13 @@ import {
   Route,
   Switch,
 } from 'react-router-dom';
-import { Spinner } from './component';
-import {
-  OrderCheckoutPage,
-  OrderListPage,
-  ProductListPage,
-  ShoppingCartPage,
-} from './component/page';
-import { GlobalNavbar } from './component/template';
+import Spinner from './component/atom/Spinner/Spinner';
+import GlobalNavbar from './component/organism/GlobalNavBar/GlobalNavBar';
+import OrderCheckoutPage from './component/page/OrderCheckPage/OrderCheckPage';
+import OrderListPage from './component/page/OrderListPage/OrderListPage';
+import ProductListPage from './component/page/ProductListPage/ProductListPage';
+import ShoppingCartPage from './component/page/ShoppingCartPage/ShoppingCartPage';
+
 import { ROUTE } from './constant';
 import { ModalPortal } from './portal';
 import {
@@ -48,12 +47,12 @@ const App = () => {
             path={ROUTE.SHOPPING_CART}
             component={ShoppingCartPage}
           />
+          <Route exact path={ROUTE.ORDER_LIST} component={OrderListPage} />
           <Route
             exact
             path={ROUTE.ORDER_CHECKOUT}
             component={OrderCheckoutPage}
           />
-          <Route exact path={ROUTE.ORDER_LIST} component={OrderListPage} />
           <Route component={() => <Redirect to={ROUTE.HOME} />} />
         </Switch>
       </Router>

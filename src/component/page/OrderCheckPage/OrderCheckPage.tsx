@@ -1,52 +1,50 @@
-import { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
 import { useSelector } from 'react-redux';
-import { Location } from 'history';
-
-import { RootState } from '../../../redux/store';
-import { useServerAPI } from '../../../hook';
+import { RouteComponentProps } from 'react-router-dom';
+import { Redirect, useHistory, useLocation } from 'react-router';
 import { CONFIRM_MESSAGE, ROUTE, SCHEMA } from '../../../constant';
-import { ProductProps } from '../../../type';
+import { useServerAPI } from '../../../hook';
+import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { Header, PaymentInfoBox, RowProductItem } from '../..';
-import { numberWithCommas } from '../../../util';
-import {
-  CheckoutListContainer,
-  Container,
-  CheckoutListTitle,
-  CheckoutList,
-  PaymentInfoBoxContainer,
-} from './OrderCheckPage.styles';
+import { ProductType } from '../../../type';
+import Header from '../../atom/Header/Header';
+import OrderCheckoutLayout from '../../template/OrderCheckLayout/OrderCheckLayout';
 
-interface CheckedItemListState {
+interface CheckedItemState {
   id: string;
   amount: number;
 }
 
-interface LocationState extends Location {
-  checkedItemList: Array<CheckedItemListState>;
-}
-
-
-const OrderCheckoutPage = () => {
-  const history = useHistory();
-  const location = useLocation<LocationState>();
-
+const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
   const { productList } = useSelector(({ productListReducer }: RootState) => ({
     productList: productListReducer.productList,
   }));
 
   const { postData: createOrder } = useServerAPI([], SCHEMA.ORDER);
-  const [expectedPrice, setExpectedPrice] = useState(0);
 
-  if (!location.state) {
-    history.replace({
-      pathname: ROUTE.HOME,
-    });
-  }
+  if (!location.state) return <Redirect to={ROUTE.HOME} />;
 
-  const checkedItemList = location.state?.checkedItemList;
+  const {
+    pathname,
+    state: { checkedItemList },
+  } = location as {
+    pathname: string;
+    state: {
+      checkedItemList: Array<CheckedItemState>;
+    };
+  };
 
+  const expectedPrice = checkedItemList.reduce(
+    (acc: number, { id, amount }: CheckedItemState) => {
+      const targetProduct = productList.find(
+        (product: ProductType) => product.id === id
+      );
+
+      if (!targetProduct) return acc;
+
+      return acc + Number(targetProduct.price) * amount;
+    },
+    0
+  );
   const onClickPaymentButton = () => {
     if (!window.confirm(CONFIRM_MESSAGE.CHECKOUT)) return;
 
@@ -64,56 +62,16 @@ const OrderCheckoutPage = () => {
     });
   };
 
-  useEffect(() => {
-    const newExpectedPrice = checkedItemList.reduce((acc, { id, amount }) => {
-      const { price } = productList.find(
-        (product: ProductProps) => product.id === id
-      );
-
-      return acc + price * amount;
-    }, 0);
-
-    setExpectedPrice(newExpectedPrice);
-  }, [checkedItemList, productList]);
-
   return (
-    <ScreenContainer route={location.pathname}>
+    <ScreenContainer route={pathname}>
       <Header>주문/결제</Header>
 
-      <Container>
-        <CheckoutListContainer>
-          <CheckoutListTitle>{`주문 상품 ( ${
-            checkedItemList?.length || 0
-          }건 )`}</CheckoutListTitle>
-
-          <CheckoutList>
-            {checkedItemList?.map(({ id, amount }) => {
-              const { img, name } = productList.find(
-                (product: ProductProps) => product.id === id
-              );
-
-              return (
-                <RowProductItem
-                  key={id}
-                  img={img}
-                  name={name}
-                  amount={`수량: ${amount} 개`}
-                />
-              );
-            })}
-          </CheckoutList>
-        </CheckoutListContainer>
-
-        <PaymentInfoBoxContainer>
-          <PaymentInfoBox
-            title="결제금액"
-            detailText="총 결제금액"
-            price={`${numberWithCommas(expectedPrice)} 원`}
-            buttonText={`${numberWithCommas(expectedPrice)}원 결제하기`}
-            onClick={onClickPaymentButton}
-          />
-        </PaymentInfoBoxContainer>
-      </Container>
+      <OrderCheckoutLayout
+        productList={productList}
+        checkedItemList={checkedItemList}
+        expectedPrice={expectedPrice}
+        onClickPaymentButton={onClickPaymentButton}
+      />
     </ScreenContainer>
   );
 };

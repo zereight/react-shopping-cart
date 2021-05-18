@@ -1,12 +1,17 @@
+import { ProductType } from '../../type';
 import { UPDATE_PRODUCT_ITEMS } from '../actionType';
 
-const initState = {
+interface StateType {
+  productList: Array<ProductType>;
+}
+
+const initState: StateType = {
   productList: [],
 };
 
 const productListReducer = (
   state = initState,
-  action: { type: any; productItems: any }
+  action: { type: string; productItems: Array<ProductType> }
 ) => {
   switch (action.type) {
     case UPDATE_PRODUCT_ITEMS: {

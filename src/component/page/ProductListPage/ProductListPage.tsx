@@ -1,34 +1,24 @@
 import { useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Container,
-  PageButtonContainer,
-  PageIndex,
-  LikedProductFilter,
-} from './ProductListPage.styles';
-import { RootState } from '../../../redux/store';
+import { RouteComponentProps } from 'react-router-dom';
 import { CONTENT_PER_PAGE, ROUTE } from '../../../constant';
 import { useModal } from '../../../hook';
 import {
   increaseProductAmount,
   toggleLikedProductList,
   updatePageIndex,
+  updateProductAmount,
   updateShoppingCartItemsAsync,
 } from '../../../redux/action';
+import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import ColumnProductItem from '../../common/ProductItem/ColumnProductItem/ColumnProductItem';
-import { numberWithCommas } from '../../../util';
-import { ModalPortal } from '../../../portal';
-import { Modal } from '../..';
-import { SuccessAddedModal } from '../../template';
-import Button from '../../common/Button/Button';
-import { ProductProps } from '../../../type';
+import { ProductType } from '../../../type';
+import Modal from '../../organism/Modal/Modal';
+import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
+import ProductListLayout from '../../template/ProductListLayout/ProductListLayout';
 
-const ProductListPage = () => {
-  const location = useLocation();
+const ProductListPage = ({ location, history }: RouteComponentProps) => {
   const dispatch = useDispatch();
-  const history = useHistory();
 
   const {
     myShoppingCartId,
@@ -52,13 +42,22 @@ const ProductListPage = () => {
     })
   );
 
-  const [showLikedProduct, setShowLikedProduct] = useState(false);
+  const [showLikedProduct, setShowLikedProduct] = useState<boolean>(false);
 
-  const { isModalOpen, open: openModal, onClickClose: onClickModalClose } = useModal(false);
+  const {
+    isModalOpen,
+    open: openModal,
+    onClickClose: onClickModalClose,
+  } = useModal(false);
 
-  const likedProductList = likedProductIdList.map((likedProductId) =>
-    productList.find((product: { id: string }) => likedProductId === product.id)
-  );
+  const likedProductList: Array<ProductType> = [];
+  likedProductIdList.forEach((likedProductId) => {
+    const targetProduct = productList.find(
+      (product: { id: string }) => likedProductId === product.id
+    );
+
+    if (targetProduct) likedProductList.push(targetProduct);
+  });
 
   const maxPageIndex =
     Math.ceil(
@@ -75,9 +74,13 @@ const ProductListPage = () => {
       dispatch(increaseProductAmount(productId));
     } else {
       const newContent = {
-        productIdList: [...new Set([...myShoppingCartProductIds, productId])],
+        productIdList: [...myShoppingCartProductIds, productId],
       };
-      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
+      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent)).then(
+        () => {
+          dispatch(updateProductAmount(productId));
+        }
+      );
     }
 
     openModal();
@@ -105,36 +108,21 @@ const ProductListPage = () => {
 
   return (
     <ScreenContainer route={location.pathname}>
-      <Container>
-        <LikedProductFilter>
-          <button type="button" onClick={onClickShowLikedProductButton}>
-            {showLikedProduct ? '전체 상품 보기' : '찜한 상품만 보기'}
-          </button>
-        </LikedProductFilter>
-        {displayProducts.length === 0
-          ? 'No results.'
-          : displayProducts.map(
-              ({
-                id,
-                img,
-                name,
-                price,
-              }: ProductProps) => (
-                <ColumnProductItem
-                  key={id}
-                  img={img}
-                  name={name}
-                  isLiked={likedProductIdList.includes(id)}
-                  price={`${numberWithCommas(price)} 원`}
-                  onClickShoppingCartIcon={() => onClickShoppingCartIcon(id)}
-                  onClickLikeButton={() => onClickLikeButton(id)}
-                />
-              )
-            )}
-      </Container>
+      <ProductListLayout
+        onClickShowLikedProductButton={onClickShowLikedProductButton}
+        showLikedProduct={showLikedProduct}
+        displayProducts={displayProducts}
+        likedProductIdList={likedProductIdList}
+        onClickShoppingCartIcon={onClickShoppingCartIcon}
+        onClickLikeButton={onClickLikeButton}
+        onClickPrevPage={onClickPrevPage}
+        pageIndex={pageIndex}
+        onClickNextPage={onClickNextPage}
+        maxPageIndex={maxPageIndex}
+      />
 
-      <ModalPortal>
-        {isModalOpen && <Modal onClickClose={onClickModalClose}>
+      {isModalOpen && (
+        <Modal onClickClose={onClickModalClose}>
           <SuccessAddedModal
             productList={
               likedProductList.length >= 3 ? likedProductList : productList
@@ -142,17 +130,8 @@ const ProductListPage = () => {
             openModal={openModal}
             onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
           />
-        </Modal>}
-      </ModalPortal>
-      <PageButtonContainer>
-        <Button onClick={onClickPrevPage} disabled={pageIndex === 0}>
-          이전
-        </Button>
-        <PageIndex>{pageIndex + 1}</PageIndex>
-        <Button onClick={onClickNextPage} disabled={pageIndex === maxPageIndex}>
-          다음
-        </Button>
-      </PageButtonContainer>
+        </Modal>
+      )}
     </ScreenContainer>
   );
 };
