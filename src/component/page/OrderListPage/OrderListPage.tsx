@@ -6,7 +6,7 @@ import {
   addShoppingCartItemAsync,
   increaseProductAmount,
 } from '../../../redux/action';
-import { RootState } from '../../../redux/store';
+import { AppDispatch, RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
 import { ProductDetailType, ProductType } from '../../../type';
 import Header from '../../atom/Header/Header';

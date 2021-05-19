@@ -16,7 +16,7 @@ interface ShoppingCartItemListProps {
   shoppingCartProducts: { [key: number]: CartProductDetailType };
   checkedProductList: Array<CartProductDetailType>;
   onClickCheckBox: React.MouseEventHandler<HTMLInputElement>;
-  onClickDeleteButton: (id: string | null) => void;
+  onClickDeleteButton: (id: string) => void;
   onClickAmountCounter: (id: string, type: string) => void;
 }
 const ShoppingCartItemList = ({

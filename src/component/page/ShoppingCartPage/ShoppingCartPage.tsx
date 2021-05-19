@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useState } from 'react';
+import { MouseEvent, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { AMOUNT_COUNTER_FLAG, CONFIRM_MESSAGE, ROUTE } from '../../../constant';
@@ -6,19 +6,17 @@ import {
   checkProduct,
   decreaseProductAmount,
   increaseProductAmount,
-  initShoppingCartItemAsync,
   removeShoppingCartItemAsync,
   unCheckProduct,
 } from '../../../redux/action';
-import { AppDispatch, RootState } from '../../../redux/store';
+import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
 import { CartProductDetailType } from '../../../type';
 import Header from '../../atom/Header/Header';
 import ShoppingCartLayout from '../../template/ShoppingCartLayout/ShoppingCartLayout';
 // TODO: re-export 하기
 const ShoppingCartPage = ({ history, location }: RouteComponentProps) => {
-  // TODO: 다른 dispatch 들도 타입선언해주기
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
   const [isAllChecked, setAllChecked] = useState(false);
 
   const { shoppingCartProducts } = useSelector(
@@ -69,20 +67,20 @@ const ShoppingCartPage = ({ history, location }: RouteComponentProps) => {
     }
   };
 
-  // TODO: "모두 삭제"와 분리
-  const onClickDeleteButton = (targetId: string | null): void => {
+  const onClickDeleteButton = (targetId: string): void => {
+    if (!window.confirm(CONFIRM_MESSAGE.DELETE)) return;
+    dispatch(removeShoppingCartItemAsync(shoppingCartProducts[targetId]));
+  };
+
+  const onClickDeleteAllButton = () => {
     if (!window.confirm(CONFIRM_MESSAGE.DELETE)) return;
 
-    if (targetId) {
-      removeShoppingCartItemAsync(shoppingCartProducts[targetId])(dispatch); // 오류가 발생해서 커링 처리
-    } else {
-      Promise.all(
-        Object.values(shoppingCartProducts).map(
-          (product: CartProductDetailType) =>
-            removeShoppingCartItemAsync(product)(dispatch)
-        )
-      );
-    }
+    return Promise.all(
+      Object.values(shoppingCartProducts).map(
+        (product: CartProductDetailType) =>
+          dispatch(removeShoppingCartItemAsync(product))
+      )
+    );
   };
 
   const onClickPaymentButton = () => {
@@ -104,10 +102,6 @@ const ShoppingCartPage = ({ history, location }: RouteComponentProps) => {
     }
   };
 
-  useEffect(() => {
-    initShoppingCartItemAsync(shoppingCartProducts)(dispatch);
-  }, [dispatch, shoppingCartProducts]);
-
   return (
     <ScreenContainer route={location.pathname}>
       <Header>장바구니</Header>
@@ -119,6 +113,7 @@ const ShoppingCartPage = ({ history, location }: RouteComponentProps) => {
         onClickAllCheckBox={onClickAllCheckBox}
         isAllChecked={isAllChecked}
         onClickDeleteButton={onClickDeleteButton}
+        onClickDeleteAllButton={onClickDeleteAllButton}
         expectedPrice={expectedPrice}
         onClickPaymentButton={onClickPaymentButton}
       />

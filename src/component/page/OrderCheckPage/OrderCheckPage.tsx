@@ -3,7 +3,7 @@ import { Redirect } from 'react-router';
 import { RouteComponentProps } from 'react-router-dom';
 import { CONFIRM_MESSAGE, ROUTE } from '../../../constant';
 import { useServerAPI } from '../../../hook';
-import { removeShoppingCartItemAsync } from '../../../redux/action';
+import { removeShoppingCartItem } from '../../../redux/action';
 import ScreenContainer from '../../../style/ScreenContainer';
 import { CartProductDetailType } from '../../../type';
 import Header from '../../atom/Header/Header';
@@ -44,7 +44,7 @@ const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
     createOrder('/api/customers/zereight/orders', newOrder).then(() => {
       Promise.all(
         checkedProductList.map((product) =>
-          removeShoppingCartItemAsync(product)(dispatch)
+          dispatch(removeShoppingCartItem(product))
         )
       ).then(() => {
         history.push({

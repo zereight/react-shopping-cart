@@ -38,28 +38,6 @@ const toggleLikeProduct = createAction(TOGGLE_LIKE_PRODUCT);
 const checkProduct = createAction(CHECK_PRODUCT);
 const unCheckProduct = createAction(UNCHECK_PRODUCT);
 
-const initShoppingCartItemAsync =
-  (shoppingCartProducts: { [key: string]: CartProductDetailType }) =>
-  async (dispatch: AppDispatch) => {
-    try {
-      dispatch(activateLoading());
-      const dbShoppingCartItemList: Array<CartProductType> =
-        await requestTable.GET('/api/customers/zereight/carts');
-
-      dbShoppingCartItemList.forEach((dbItem) => {
-        if (!shoppingCartProducts[dbItem.product_id]) {
-          dispatch(
-            addShoppingCartItem({ quantity: 1, checked: false, ...dbItem })
-          );
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      dispatch(deactivateLoading());
-    }
-  };
-
 const addShoppingCartItem = createAction(ADD_SHOPPING_CART_ITEMS);
 const addShoppingCartItemAsync =
   (product: ProductDetailType) => async (dispatch: AppDispatch) => {
@@ -158,5 +136,4 @@ export {
   unCheckProduct,
   updateProductList,
   updateProductListAsync,
-  initShoppingCartItemAsync,
 };

@@ -22,7 +22,8 @@ interface ShoppingCartLayoutProps {
   isAllChecked: boolean;
   expectedPrice: number;
   onClickAllCheckBox: React.MouseEventHandler<HTMLDivElement>;
-  onClickDeleteButton: (id: string | null) => void;
+  onClickDeleteButton: (id: string) => void;
+  onClickDeleteAllButton: () => void;
   onClickPaymentButton: React.MouseEventHandler<HTMLButtonElement>;
 }
 const ShoppingCartLayout = ({
@@ -33,6 +34,7 @@ const ShoppingCartLayout = ({
   onClickAllCheckBox,
   isAllChecked,
   onClickDeleteButton,
+  onClickDeleteAllButton,
   expectedPrice,
   onClickPaymentButton,
 }: ShoppingCartLayoutProps) => (
@@ -51,7 +53,7 @@ const ShoppingCartLayout = ({
               />
               <span>모두선택</span>
               <DeleteButton
-                onClick={() => onClickDeleteButton(null)}
+                onClick={() => onClickDeleteAllButton()}
                 disabled={!checkedProductList.length}
               >
                 상품삭제
