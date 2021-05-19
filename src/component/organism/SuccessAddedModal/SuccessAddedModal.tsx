@@ -33,7 +33,7 @@ const SuccessAddedModal = ({
               image_url={image_url}
               name={name}
               price={price}
-              onClickShoppingCartIcon={openModal}
+              onClickShoppingCartButton={openModal}
               isIconsVisible={false}
               onClickLikeButton={() => {}}
             />

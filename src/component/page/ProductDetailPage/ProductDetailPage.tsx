@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router';
 import { ROUTE } from '../../../constant';
-import { useModal, useServerAPI } from '../../../hook';
+import { useModal } from '../../../hook';
 import {
   addShoppingCartItemAsync,
   increaseProductAmount,
@@ -9,13 +9,20 @@ import {
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
 import { ProductDetailType, ProductType } from '../../../type';
-import Header from '../../atom/Header/Header';
 import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
-import OrderListLayout from '../../template/OrderListLayout/OrderListLayout';
+import ProductDetailLayout from '../../template/ProductDetailLayout/ProductDetailLayout';
 
-const OrderListPage = ({ history, location }: RouteComponentProps) => {
+interface MatchParams {
+  id: string;
+}
+const ProductDetailPage = ({
+  match,
+  location,
+  history,
+}: RouteComponentProps<MatchParams>) => {
   const dispatch = useDispatch();
+  const { id: productId } = match.params;
 
   const { products, shoppingCartProducts } = useSelector(
     ({ productListReducer, myShoppingCartReducer }: RootState) => ({
@@ -24,15 +31,17 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
     })
   );
 
-  const { value: orderList } = useServerAPI('/api/customers/zereight/orders');
-
   const {
     isModalOpen,
     open: openModal,
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  // TODO: 상품 목록 페이지와 중복
+  if (!products[productId]) {
+    history.push({ pathname: ROUTE.HOME });
+    return <></>;
+  }
+
   const likedProducts: {
     [key: string]: ProductDetailType;
   } = {};
@@ -55,12 +64,11 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
     })
   );
 
-  // TODO: 상품 목록 페이지와 중복
-  const onClickShoppingCartButton = (productId: string) => {
-    if (shoppingCartProducts[productId]) {
-      dispatch(increaseProductAmount(products[productId]));
+  const onClickShoppingCartButton = (id: string) => {
+    if (shoppingCartProducts[id]) {
+      dispatch(increaseProductAmount(products[id]));
     } else {
-      dispatch(addShoppingCartItemAsync(products[productId]));
+      dispatch(addShoppingCartItemAsync(products[id]));
     }
 
     openModal();
@@ -68,11 +76,8 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
 
   return (
     <ScreenContainer route={location.pathname}>
-      <Header>주문 목록</Header>
-
-      <OrderListLayout
-        orderList={orderList}
-        products={products}
+      <ProductDetailLayout
+        product={products[productId]}
         onClickShoppingCartButton={onClickShoppingCartButton}
       />
 
@@ -89,4 +94,4 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
   );
 };
 
-export default OrderListPage;
+export default ProductDetailPage;

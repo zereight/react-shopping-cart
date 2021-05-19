@@ -18,7 +18,7 @@ Basic.args = {
   price: 100,
   image_url:
     'https://zereight.github.io/react-payments/static/media/pullup.befeeb55.gif',
-  onClickShoppingCartIcon: () => {
+  onClickShoppingCartButton: () => {
     alert('장바구니 버튼 클릭');
   },
   onClickLikeButton: () => {

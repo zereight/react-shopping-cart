@@ -36,6 +36,7 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
 
   const [showLikedProduct, setShowLikedProduct] = useState<boolean>(false);
 
+  // TODO: 모달 부분 중복 처리해주기
   const {
     isModalOpen,
     open: openModal,
@@ -51,11 +52,7 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
     }
   });
 
-  const maxPageIndex =
-    Math.ceil(
-      (showLikedProduct ? Object.keys(likedProducts) : Object.keys(products))
-        .length / CONTENT_PER_PAGE
-    ) - 1;
+  
 
   const recommendedProductList = (
     Object.values(likedProducts).length >= 3
@@ -69,12 +66,18 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
       price,
     })
   );
+  
+  const maxPageIndex =
+  Math.ceil(
+    (showLikedProduct ? Object.keys(likedProducts) : Object.keys(products))
+      .length / CONTENT_PER_PAGE
+  ) - 1;
 
   const displayProductList = (
     showLikedProduct ? Object.values(likedProducts) : Object.values(products)
   ).slice(pageIndex * CONTENT_PER_PAGE, (pageIndex + 1) * CONTENT_PER_PAGE);
 
-  const onClickShoppingCartIcon = (productId: string) => {
+  const onClickShoppingCartButton = (productId: string) => {
     if (shoppingCartProducts[productId]) {
       dispatch(increaseProductAmount(products[productId]));
     } else {
@@ -112,7 +115,7 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
         showLikedProduct={showLikedProduct}
         displayProductList={displayProductList}
         likedProducts={likedProducts}
-        onClickShoppingCartIcon={onClickShoppingCartIcon}
+        onClickShoppingCartButton={onClickShoppingCartButton}
         onClickLikeButton={onClickLikeButton}
         onClickPrevPage={onClickPrevPage}
         pageIndex={pageIndex}

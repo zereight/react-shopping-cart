@@ -15,7 +15,7 @@ import { numberWithCommas } from '../../../util';
 interface ColumnProductItemProps extends ItemType {
   isIconsVisible?: boolean;
   isLiked?: boolean;
-  onClickShoppingCartIcon: React.MouseEventHandler<HTMLButtonElement>;
+  onClickShoppingCartButton: React.MouseEventHandler<HTMLButtonElement>;
   onClickLikeButton: React.MouseEventHandler<HTMLButtonElement>;
   $buttonStyle?: ButtonType;
 }
@@ -28,7 +28,7 @@ const ColumnProductItem = ({
   price,
   isIconsVisible = true,
   isLiked = false,
-  onClickShoppingCartIcon,
+  onClickShoppingCartButton,
   onClickLikeButton,
   $buttonStyle = 'default',
 }: ColumnProductItemProps) => (
@@ -48,7 +48,10 @@ const ColumnProductItem = ({
           >
             ❤️
           </Button>
-          <Button onClick={onClickShoppingCartIcon} $buttonStyle={$buttonStyle}>
+          <Button
+            onClick={onClickShoppingCartButton}
+            $buttonStyle={$buttonStyle}
+          >
             <ShoppingCartIcon scale="0.6" color="black" />
           </Button>
         </>

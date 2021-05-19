@@ -9,6 +9,7 @@ import Spinner from './component/atom/Spinner/Spinner';
 import GlobalNavbar from './component/organism/GlobalNavBar/GlobalNavBar';
 import OrderCheckoutPage from './component/page/OrderCheckPage/OrderCheckPage';
 import OrderListPage from './component/page/OrderListPage/OrderListPage';
+import ProductDetailPage from './component/page/ProductDetailPage/ProductDetailPage';
 import ProductListPage from './component/page/ProductListPage/ProductListPage';
 import ShoppingCartPage from './component/page/ShoppingCartPage/ShoppingCartPage';
 import { ROUTE } from './constant';
@@ -29,6 +30,7 @@ const App = () => {
 
         <Switch>
           <Route exact path={ROUTE.HOME} component={ProductListPage} />
+          <Route path={ROUTE.PRODUCT_DETAIL} component={ProductDetailPage} />
           <Route
             exact
             path={ROUTE.SHOPPING_CART}

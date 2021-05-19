@@ -11,7 +11,7 @@ interface ProductListPageProps {
     [key: string]: ProductDetailType;
   };
   displayProductList: Array<ProductType>;
-  onClickShoppingCartIcon: (id: string) => void;
+  onClickShoppingCartButton: (id: string) => void;
   onClickLikeButton: (id: string) => void;
   onClickShowLikedProductButton: React.MouseEventHandler<HTMLButtonElement>;
   onClickPrevPage: React.MouseEventHandler<HTMLButtonElement>;
@@ -23,7 +23,7 @@ const ProductListLayout = ({
   showLikedProduct,
   displayProductList,
   likedProducts,
-  onClickShoppingCartIcon,
+  onClickShoppingCartButton,
   onClickLikeButton,
   onClickPrevPage,
   pageIndex,
@@ -45,7 +45,9 @@ const ProductListLayout = ({
             name={name}
             isLiked={!!likedProducts[product_id]}
             price={price}
-            onClickShoppingCartIcon={() => onClickShoppingCartIcon(product_id)}
+            onClickShoppingCartButton={() =>
+              onClickShoppingCartButton(product_id)
+            }
             onClickLikeButton={() => onClickLikeButton(product_id)}
             $buttonStyle="simple"
           />

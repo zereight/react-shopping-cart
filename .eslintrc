@@ -24,7 +24,6 @@
     "indent": "off",
     "import/no-extraneous-dependencies": "off",
     "react/require-default-props": "off",
-    "@typescript-eslint/no-unused-expressions": 2,
     "@typescript-eslint/naming-convention": "off"
   }
 }
