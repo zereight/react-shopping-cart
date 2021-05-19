@@ -17,10 +17,10 @@ Basic.args = {
   orderId: '1',
   children: (
     <>
-      <RowProductItem name="a" amount={`수량: ${100} 개`} />
-      <RowProductItem name="b" amount={`수량: ${100} 개`} />
-      <RowProductItem name="c" amount={`수량: ${100} 개`} />
-      <RowProductItem name="d" amount={`수량: ${100} 개`} />
+      <RowProductItem name="a" quantity={100} />
+      <RowProductItem name="b" quantity={100} />
+      <RowProductItem name="c" quantity={100} />
+      <RowProductItem name="d" quantity={100} />
     </>
   ),
 };

@@ -1,21 +1,39 @@
-import { ProductType } from '../../type';
-import { UPDATE_PRODUCT_ITEMS } from '../actionType';
+import produce from 'immer';
+import { ProductDetailType } from '../../type';
+import { TOGGLE_LIKE_PRODUCT, UPDATE_PRODUCT_LIST } from '../actionType';
 
-interface StateType {
-  productList: Array<ProductType>;
+interface StateProps {
+  products: {
+    [key: string]: ProductDetailType;
+  };
 }
 
-const initState: StateType = {
-  productList: [],
+const initState: StateProps = {
+  products: {},
 };
 
 const productListReducer = (
   state = initState,
-  action: { type: string; productItems: Array<ProductType> }
+  action: {
+    type: string;
+    payload: ProductDetailType;
+  }
 ) => {
   switch (action.type) {
-    case UPDATE_PRODUCT_ITEMS: {
-      return { ...state, productList: action.productItems };
+    case UPDATE_PRODUCT_LIST: {
+      const product = action.payload;
+
+      return produce(state, (draft) => {
+        draft.products[product.product_id] = product;
+      });
+    }
+    case TOGGLE_LIKE_PRODUCT: {
+      const product = action.payload;
+
+      return produce(state, (draft) => {
+        draft.products[product.product_id].liked =
+          !draft.products[product.product_id].liked;
+      });
     }
 
     default:

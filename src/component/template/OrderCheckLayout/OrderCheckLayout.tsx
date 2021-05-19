@@ -1,5 +1,5 @@
 import React from 'react';
-import { ProductType, CheckedItemType } from '../../../type';
+import { CartProductDetailType } from '../../../type';
 import { numberWithCommas } from '../../../util';
 import PaymentInfoBox from '../../molecule/PaymentInfoBox/PaymentInfoBox';
 import CheckoutProductList from '../../organism/CheckoutProductList/CheckoutProductList';
@@ -11,15 +11,13 @@ import {
 } from './OrderCheckLayout.styles';
 
 interface OrderCheckoutLayoutProps {
-  productList: Array<ProductType>;
-  checkedItemList: Array<CheckedItemType>;
+  checkedProductList: Array<CartProductDetailType>;
   expectedPrice: number;
   onClickPaymentButton: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 const OrderCheckoutLayout = ({
-  productList,
-  checkedItemList,
+  checkedProductList,
   expectedPrice,
   onClickPaymentButton,
 }: OrderCheckoutLayoutProps) => (
@@ -27,13 +25,10 @@ const OrderCheckoutLayout = ({
     <Container>
       <CheckoutListContainer>
         <CheckoutListTitle>{`주문 상품 ( ${
-          checkedItemList.length || 0
+          checkedProductList.length || 0
         }건 )`}</CheckoutListTitle>
 
-        <CheckoutProductList
-          productList={productList}
-          checkedItemList={checkedItemList}
-        />
+        <CheckoutProductList checkedProductList={checkedProductList} />
       </CheckoutListContainer>
 
       <PaymentInfoBoxContainer>

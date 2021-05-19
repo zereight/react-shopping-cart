@@ -9,11 +9,10 @@ import {
 import productNotFoundImg from '../../../asset/img/empty_page.png';
 import ShoppingCartIcon from '../../atom/ShoppingCartIcon/ShoppingCartIcon';
 import Button, { ButtonType } from '../../atom/Button/Button';
+import { ItemType } from '../../../type';
+import { numberWithCommas } from '../../../util';
 
-interface ColumnProductItemProps {
-  img: string;
-  name: string;
-  price: string;
+interface ColumnProductItemProps extends ItemType {
   isIconsVisible?: boolean;
   isLiked?: boolean;
   onClickShoppingCartIcon: React.MouseEventHandler<HTMLButtonElement>;
@@ -24,7 +23,7 @@ interface ColumnProductItemProps {
 const ACTIVE = 1;
 const DEACTIVE = 0.6;
 const ColumnProductItem = ({
-  img = productNotFoundImg,
+  image_url = productNotFoundImg,
   name,
   price,
   isIconsVisible = true,
@@ -34,11 +33,11 @@ const ColumnProductItem = ({
   $buttonStyle = 'default',
 }: ColumnProductItemProps) => (
   <Container>
-    <Image src={img} loading="lazy" />
+    <Image src={image_url} loading="lazy" />
     <DetailContainer>
       <ProductDetail>
         <Name>{name}</Name>
-        <Price>{price}</Price>
+        <Price>{`${numberWithCommas(price)} 원`}</Price>
       </ProductDetail>
       {isIconsVisible && (
         <>

@@ -1,14 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { ROUTE, SCHEMA } from '../../../constant';
+import { ROUTE } from '../../../constant';
 import { useModal, useServerAPI } from '../../../hook';
 import {
+  addShoppingCartItemAsync,
   increaseProductAmount,
-  updateShoppingCartItemsAsync,
 } from '../../../redux/action';
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { ProductType } from '../../../type';
+import { ProductDetailType, ProductType } from '../../../type';
 import Header from '../../atom/Header/Header';
 import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
@@ -17,26 +17,14 @@ import OrderListLayout from '../../template/OrderListLayout/OrderListLayout';
 const OrderListPage = ({ history, location }: RouteComponentProps) => {
   const dispatch = useDispatch();
 
-  const {
-    myShoppingCartId,
-    myShoppingCartProductIds,
-    productList,
-    likedProductIdList,
-  } = useSelector(
-    ({
-      myShoppingCartReducer,
-      productListReducer,
-      likedProductIdListReducer,
-    }: RootState) => ({
-      myShoppingCartId: myShoppingCartReducer.myShoppingCart.id,
-      myShoppingCartProductIds:
-        myShoppingCartReducer.myShoppingCart.productIdList,
-      productList: productListReducer.productList,
-      likedProductIdList: likedProductIdListReducer.likedProductIdList,
+  const { products, shoppingCartProducts } = useSelector(
+    ({ productListReducer, myShoppingCartReducer }: RootState) => ({
+      products: productListReducer.products,
+      shoppingCartProducts: myShoppingCartReducer.products,
     })
   );
 
-  const { value: orderList } = useServerAPI([], SCHEMA.ORDER);
+  const { value: orderList } = useServerAPI('/api/customers/zereight/orders');
 
   const {
     isModalOpen,
@@ -44,22 +32,35 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  const likedProductList: Array<ProductType> = [];
-  likedProductIdList.forEach((likedProductId) => {
-    const targetProduct = productList.find(
-      (product: ProductType) => likedProductId === product.id
-    );
-    if (targetProduct) likedProductList.push(targetProduct);
+  // TODO: 상품 목록 페이지와 중복
+  const likedProducts: {
+    [key: string]: ProductDetailType;
+  } = {};
+  Object.values(products).forEach((product) => {
+    if (product.liked) {
+      likedProducts[product.product_id] = product;
+    }
   });
 
-  const onClickShoppingCartButton = (productId: string) => {
-    if (myShoppingCartProductIds.includes(productId)) {
-      dispatch(increaseProductAmount(productId));
+  const recommendedProductList = (
+    Object.values(likedProducts).length >= 3
+      ? Object.values(likedProducts)
+      : Object.values(products)
+  ).map(
+    ({ product_id, image_url, name, price }): ProductType => ({
+      product_id,
+      image_url,
+      name,
+      price,
+    })
+  );
+
+  // TODO: 상품 목록 페이지와 중복
+  const onClickShoppingCartIcon = (productId: string) => {
+    if (shoppingCartProducts[productId]) {
+      dispatch(increaseProductAmount(products[productId]));
     } else {
-      const newContent = {
-        productIdList: [...new Set([...myShoppingCartProductIds, productId])],
-      };
-      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent));
+      dispatch(addShoppingCartItemAsync(products[productId]));
     }
 
     openModal();
@@ -71,16 +72,14 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
 
       <OrderListLayout
         orderList={orderList}
-        productList={productList}
-        onClickShoppingCartButton={onClickShoppingCartButton}
+        products={products}
+        onClickShoppingCartButton={onClickShoppingCartIcon}
       />
 
       {isModalOpen && (
         <Modal onClickClose={onClickModalClose}>
           <SuccessAddedModal
-            productList={
-              likedProductList.length >= 3 ? likedProductList : productList
-            }
+            productList={recommendedProductList}
             openModal={openModal}
             onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
           />

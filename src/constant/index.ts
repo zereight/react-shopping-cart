@@ -2,6 +2,8 @@ import { ROUTE } from './route';
 import { SCHEMA } from './schema';
 import { CONFIRM_MESSAGE } from './message';
 
+const MIN_PAGE_INDEX = 0;
+
 const AMOUNT_COUNT = {
   MIN: 1,
   MAX: 20,
@@ -20,6 +22,7 @@ export {
   ROUTE,
   AMOUNT_COUNT,
   CONTENT_PER_PAGE,
+  MIN_PAGE_INDEX,
   SCHEMA,
   CONFIRM_MESSAGE,
   AMOUNT_COUNTER_FLAG,

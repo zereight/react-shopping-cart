@@ -1,64 +1,56 @@
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { Redirect } from 'react-router';
 import { RouteComponentProps } from 'react-router-dom';
-import { Redirect, useHistory, useLocation } from 'react-router';
-import { CONFIRM_MESSAGE, ROUTE, SCHEMA } from '../../../constant';
+import { CONFIRM_MESSAGE, ROUTE } from '../../../constant';
 import { useServerAPI } from '../../../hook';
-import { RootState } from '../../../redux/store';
+import { removeShoppingCartItemAsync } from '../../../redux/action';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { ProductType } from '../../../type';
+import { CartProductDetailType } from '../../../type';
 import Header from '../../atom/Header/Header';
 import OrderCheckoutLayout from '../../template/OrderCheckLayout/OrderCheckLayout';
 
-interface CheckedItemState {
-  id: string;
-  amount: number;
-}
-
 const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
-  const { productList } = useSelector(({ productListReducer }: RootState) => ({
-    productList: productListReducer.productList,
-  }));
-
-  const { postData: createOrder } = useServerAPI([], SCHEMA.ORDER);
+  const dispatch = useDispatch();
+  // TODO: 굳이 이렇게 써야할까?
+  const { postData: createOrder } = useServerAPI(
+    `/api/customers/zereight/orders`
+  );
 
   if (!location.state) return <Redirect to={ROUTE.HOME} />;
 
   const {
     pathname,
-    state: { checkedItemList },
+    state: { checkedProductList },
   } = location as {
     pathname: string;
     state: {
-      checkedItemList: Array<CheckedItemState>;
+      checkedProductList: Array<CartProductDetailType>;
     };
   };
 
-  const expectedPrice = checkedItemList.reduce(
-    (acc: number, { id, amount }: CheckedItemState) => {
-      const targetProduct = productList.find(
-        (product: ProductType) => product.id === id
-      );
-
-      if (!targetProduct) return acc;
-
-      return acc + Number(targetProduct.price) * amount;
-    },
+  const expectedPrice = checkedProductList.reduce(
+    (acc: number, product: CartProductDetailType) =>
+      acc + Number(product.price) * product.quantity,
     0
   );
   const onClickPaymentButton = () => {
     if (!window.confirm(CONFIRM_MESSAGE.CHECKOUT)) return;
 
-    const content = {
-      orderedProductList: checkedItemList.map(({ id, amount }) => ({
-        id,
-        amount,
-      })),
-    };
+    const newOrder = checkedProductList.map((product) => ({
+      cart_id: product.cart_id,
+      quantity: product.quantity,
+    }));
 
-    createOrder(content);
-
-    history.push({
-      pathname: ROUTE.ORDER_LIST,
+    createOrder('/api/customers/zereight/orders', newOrder).then(() => {
+      Promise.all(
+        checkedProductList.map((product) =>
+          removeShoppingCartItemAsync(product)(dispatch)
+        )
+      ).then(() => {
+        history.push({
+          pathname: ROUTE.ORDER_LIST,
+        });
+      });
     });
   };
 
@@ -67,8 +59,7 @@ const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
       <Header>주문/결제</Header>
 
       <OrderCheckoutLayout
-        productList={productList}
-        checkedItemList={checkedItemList}
+        checkedProductList={checkedProductList}
         expectedPrice={expectedPrice}
         onClickPaymentButton={onClickPaymentButton}
       />

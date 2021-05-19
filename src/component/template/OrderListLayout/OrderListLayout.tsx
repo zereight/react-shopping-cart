@@ -1,5 +1,4 @@
-import { OrderType, ProductType } from '../../../type';
-import { numberWithCommas } from '../../../util';
+import { OrderType, ProductDetailType } from '../../../type';
 import Button from '../../atom/Button/Button';
 import OrderContainer from '../../molecule/OrderContainer/OrderContainer';
 import RowProductItem from '../../molecule/RowProductItem/RowProductItem';
@@ -7,37 +6,33 @@ import { Container, OrderItemContainer } from './OrderListLayout.styles';
 
 interface OrderListLayoutProps {
   orderList: Array<OrderType>;
-  productList: Array<ProductType>;
+  products: {
+    [key: string]: ProductDetailType;
+  };
   onClickShoppingCartButton: (id: string) => void;
 }
 
 const OrderListLayout = ({
   orderList,
-  productList,
+  products,
   onClickShoppingCartButton,
 }: OrderListLayoutProps) => (
   <>
     <Container>
-      {orderList.map((order: OrderType) => (
-        <OrderContainer key={order.id} orderId={order.id}>
-          {order.orderedProductList?.map(({ id, amount }) => {
-            const targetProduct = productList.find(
-              (product: ProductType) => product.id === id
-            );
-
-            if (!targetProduct) return null;
-
-            const { img, name, price } = targetProduct;
+      {orderList.map((order) => (
+        <OrderContainer key={order.order_id} orderId={order.order_id}>
+          {order.order_details.map(({ product_id, quantity }) => {
+            const { image_url, name, price } = products[product_id];
 
             return (
-              <OrderItemContainer key={id}>
+              <OrderItemContainer key={product_id}>
                 <RowProductItem
-                  img={img}
+                  image_url={image_url}
                   name={name}
-                  price={`${numberWithCommas(Number(price) * amount)} 원 / `}
-                  amount={`수량: ${amount} 개`}
+                  price={price * quantity}
+                  quantity={quantity}
                 />
-                <Button onClick={() => onClickShoppingCartButton(id)}>
+                <Button onClick={() => onClickShoppingCartButton(product_id)}>
                   장바구니
                 </Button>
               </OrderItemContainer>

@@ -1,31 +1,30 @@
-import firebase from 'firebase';
 import { useState, useEffect } from 'react';
 
 import { requestTable } from '../api/request';
 import { activateLoading, deactivateLoading } from '../redux/action';
 import { store } from '../redux/store';
 
-const useServerAPI = (defaultValue: any, schema: string | number) => {
-  const [value, setValue] = useState(defaultValue);
+const useServerAPI = (getQuery: string) => {
+  const [value, setValue] = useState<Array<any>>([]);
 
-  const getAllData = async () => {
+  const getAllData = async (query: string) => {
     try {
       store.dispatch(activateLoading());
-      const data = await requestTable.GET(schema);
+      const data = await requestTable.GET(query);
 
       setValue(data);
     } catch (error) {
       console.error(error);
-      setValue(defaultValue);
+      setValue([]);
     } finally {
       store.dispatch(deactivateLoading());
     }
   };
 
-  const getData = async (targetId: string | undefined) => {
+  const getData = async (query: string) => {
     try {
       store.dispatch(activateLoading());
-      const data = await requestTable.GET(schema, targetId);
+      const data = await requestTable.GET(query);
 
       return data;
     } catch (error) {
@@ -35,42 +34,18 @@ const useServerAPI = (defaultValue: any, schema: string | number) => {
     }
   };
 
-  const putData = async (
-    targetId: string | undefined,
-    content: firebase.firestore.UpdateData
-  ) => {
+  const postData = async (query: string, payload: any) => {
     try {
       store.dispatch(activateLoading());
-      await requestTable.PUT(schema, targetId, content);
 
-      setValue((prevState: any[]) => {
-        const newState = prevState.filter(
-          (state: { id: any }) => state.id !== targetId
-        );
+      const response = await requestTable.POST(query, payload);
 
-        newState.push({
-          id: targetId,
-          ...content,
-        });
-        return newState;
-      });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      store.dispatch(deactivateLoading());
-    }
-  };
+      if (!response.ok) throw new Error(await response.text());
 
-  const postData = async (content: firebase.firestore.DocumentData) => {
-    try {
-      store.dispatch(activateLoading());
-      const newDataId = await requestTable.POST(schema, content);
-
-      setValue((prevState: any) => {
+      setValue((prevState) => {
         const newState = [...prevState];
         newState.push({
-          id: newDataId,
-          ...content,
+          ...payload,
         });
 
         return newState;
@@ -83,12 +58,12 @@ const useServerAPI = (defaultValue: any, schema: string | number) => {
   };
 
   useEffect(() => {
-    getAllData();
+    getAllData(getQuery);
 
-    return () => setValue(defaultValue);
+    return () => setValue([]);
   }, []);
 
-  return { value, setValue, getAllData, getData, putData, postData };
+  return { value, setValue, getAllData, getData, postData };
 };
 
 export default useServerAPI;

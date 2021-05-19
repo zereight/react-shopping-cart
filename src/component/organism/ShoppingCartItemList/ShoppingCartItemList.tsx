@@ -1,4 +1,5 @@
-import { ProductType } from '../../../type';
+import { AMOUNT_COUNTER_FLAG } from '../../../constant';
+import { CartProductDetailType } from '../../../type';
 import { numberWithCommas } from '../../../util';
 import TrashCanIcon from '../../atom/TrashIcon/TrashIcon';
 import AmountCounter from '../../molecule/AmountCounter/AmountCounter';
@@ -12,62 +13,61 @@ import {
 } from './ShoppingCartItemList.styles';
 
 interface ShoppingCartItemListProps {
-  productList: Array<ProductType>;
-  myShoppingCartProductIds: Array<string>;
-  checkedProductIdList: Array<string>;
-  productAmountDict: { [key: string]: number };
+  shoppingCartProducts: { [key: number]: CartProductDetailType };
+  checkedProductList: Array<CartProductDetailType>;
   onClickCheckBox: React.MouseEventHandler<HTMLInputElement>;
   onClickDeleteButton: (id: string | null) => void;
   onClickAmountCounter: (id: string, type: string) => void;
 }
 const ShoppingCartItemList = ({
-  productAmountDict,
-  productList,
-  myShoppingCartProductIds,
-  checkedProductIdList,
+  shoppingCartProducts,
+  checkedProductList,
   onClickCheckBox,
   onClickDeleteButton,
   onClickAmountCounter,
 }: ShoppingCartItemListProps) => (
   <Container>
-    {myShoppingCartProductIds.map((productId: string) => {
-      const isChecked: boolean = checkedProductIdList.includes(productId);
-      const targetProduct = productList.find(({ id }) => id === productId);
+    {Object.values(shoppingCartProducts).map(
+      (product: CartProductDetailType) => {
+        const isChecked: boolean = checkedProductList
+          .map((checkedProduct) => checkedProduct.product_id)
+          .includes(product.product_id);
 
-      if (!targetProduct) return null;
+        const { product_id, image_url, name, price, quantity } = product;
 
-      const { img, name, price } = targetProduct;
+        return (
+          <ShoppingCartItemContainer key={product_id}>
+            <ShoppingCartItem>
+              <CheckBox
+                id={product_id}
+                onClick={onClickCheckBox}
+                isChecked={isChecked}
+              />
+              <RowProductItem image_url={image_url} name={name} />
+            </ShoppingCartItem>
 
-      const amount = productAmountDict[productId] || 1;
-
-      return (
-        <ShoppingCartItemContainer key={productId}>
-          <ShoppingCartItem>
-            <CheckBox
-              id={productId}
-              onClick={onClickCheckBox}
-              isChecked={isChecked}
-            />
-            <RowProductItem img={img} name={name} />
-          </ShoppingCartItem>
-
-          <ShoppingCartItemOption>
-            <button
-              type="button"
-              onClick={() => onClickDeleteButton(productId)}
-            >
-              <TrashCanIcon />
-            </button>
-            <AmountCounter
-              value={amount}
-              onClickUp={() => onClickAmountCounter(productId, 'up')}
-              onClickDown={() => onClickAmountCounter(productId, 'down')}
-            />
-            <span>{`${numberWithCommas(Number(price) * amount)}원`}</span>
-          </ShoppingCartItemOption>
-        </ShoppingCartItemContainer>
-      );
-    })}
+            <ShoppingCartItemOption>
+              <button
+                type="button"
+                onClick={() => onClickDeleteButton(product_id)}
+              >
+                <TrashCanIcon />
+              </button>
+              <AmountCounter
+                value={quantity}
+                onClickUp={() =>
+                  onClickAmountCounter(product_id, AMOUNT_COUNTER_FLAG.UP)
+                }
+                onClickDown={() =>
+                  onClickAmountCounter(product_id, AMOUNT_COUNTER_FLAG.DOWN)
+                }
+              />
+              <span>{`${numberWithCommas(price * quantity)}원`}</span>
+            </ShoppingCartItemOption>
+          </ShoppingCartItemContainer>
+        );
+      }
+    )}
   </Container>
 );
 

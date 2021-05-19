@@ -1,13 +1,10 @@
 import { combineReducers } from 'redux';
 import { persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import productListReducer from './productList';
 import myShoppingCartReducer from './myShoppingCart';
 import loadingReducer from './loading';
-import checkedProductReducer from './checkedProductList';
-import productAmountDictReducer from './productAmount';
-import likedProductIdListReducer from './likeList';
 import pageIndexReducer from './pageIndex';
+import productListReducer from './productList';
 
 const persistConfig = {
   key: 'root',
@@ -17,11 +14,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   myShoppingCartReducer,
   loadingReducer,
-  productListReducer,
-  checkedProductReducer,
-  productAmountDictReducer,
   pageIndexReducer,
-  likedProductIdListReducer,
+  productListReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

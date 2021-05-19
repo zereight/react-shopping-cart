@@ -1,18 +1,40 @@
-interface ProductType {
-  id: string;
-  img: string;
+interface ItemType {
+  image_url: string;
   name: string;
-  price: string;
+  price: number;
 }
 
-interface CheckedItemType {
-  id: string;
-  amount: number;
+interface ProductType extends ItemType {
+  product_id: string;
 }
 
+interface ProductDetailType extends ProductType {
+  liked: boolean;
+}
+
+interface CartProductType extends ProductType {
+  cart_id: string;
+}
+interface CartProductDetailType extends CartProductType {
+  checked: boolean;
+  quantity: number;
+}
+
+interface OrderDetailType extends ItemType {
+  product_id: string;
+  quantity: number;
+}
 interface OrderType {
-  id: string;
-  orderedProductList: Array<{ id: string; amount: number }>;
+  order_id: string;
+  order_details: Array<OrderDetailType>;
 }
 
-export { ProductType, CheckedItemType, OrderType };
+export type {
+  ItemType,
+  ProductType,
+  CartProductType,
+  OrderType,
+  OrderDetailType,
+  ProductDetailType,
+  CartProductDetailType,
+};

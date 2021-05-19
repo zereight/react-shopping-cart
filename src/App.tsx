@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import {
   BrowserRouter as Router,
   Redirect,
@@ -12,27 +11,15 @@ import OrderCheckoutPage from './component/page/OrderCheckPage/OrderCheckPage';
 import OrderListPage from './component/page/OrderListPage/OrderListPage';
 import ProductListPage from './component/page/ProductListPage/ProductListPage';
 import ShoppingCartPage from './component/page/ShoppingCartPage/ShoppingCartPage';
-
 import { ROUTE } from './constant';
 import { ModalPortal } from './portal';
-import {
-  getMyShoppingCartAsync,
-  updateProductItemsAsync,
-} from './redux/action';
 import { RootState } from './redux/store';
-
 import GlobalStyles from './style/GlobalStyles';
 
 const App = () => {
-  const dispatch = useDispatch();
   const loading = useSelector(
     ({ loadingReducer }: RootState) => loadingReducer.loading
   );
-
-  useEffect(() => {
-    dispatch(updateProductItemsAsync());
-    dispatch(getMyShoppingCartAsync());
-  }, [dispatch]);
 
   return (
     <>

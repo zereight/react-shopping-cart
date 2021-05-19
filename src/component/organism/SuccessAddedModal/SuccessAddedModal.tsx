@@ -1,4 +1,4 @@
-import { numberWithCommas } from '../../../util';
+import { ProductType } from '../../../type';
 import ColumnProductItem from '../../molecule/ColumnProductItem/ColumnProductItem';
 import {
   ModalText,
@@ -9,12 +9,7 @@ import {
 } from './SuccessAddedModal.styles';
 
 interface SuccessAddedModalProps {
-  productList: {
-    id: string;
-    name: string;
-    img: string;
-    price: string;
-  }[];
+  productList: Array<ProductType>;
   openModal: React.MouseEventHandler<HTMLButtonElement>;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
 }
@@ -30,17 +25,19 @@ const SuccessAddedModal = ({
     <RecommendedContainer>
       <RecommendedTitle>❤️ 잠깐! 아래 상품들도 살펴보세요! ❤️</RecommendedTitle>
       <RecommendedList>
-        {productList.slice(0, 3).map(({ id, img, name, price }) => (
-          <ColumnProductItem
-            key={id}
-            img={img}
-            name={name}
-            price={`${numberWithCommas(Number(price))} 원`}
-            onClickShoppingCartIcon={openModal}
-            isIconsVisible={false}
-            onClickLikeButton={() => {}}
-          />
-        ))}
+        {productList
+          .slice(0, 3)
+          .map(({ product_id, image_url, name, price }) => (
+            <ColumnProductItem
+              key={product_id}
+              image_url={image_url}
+              name={name}
+              price={price}
+              onClickShoppingCartIcon={openModal}
+              isIconsVisible={false}
+              onClickLikeButton={() => {}}
+            />
+          ))}
       </RecommendedList>
     </RecommendedContainer>
   </>

@@ -1,5 +1,4 @@
 import { Meta, Story } from '@storybook/react';
-import { numberWithCommas } from '../../../util';
 import RowProductItem, { RowProductItemProps } from './RowProductItem';
 
 export default {
@@ -16,7 +15,8 @@ export const Basic = Template.bind({});
 
 Basic.args = {
   name: '브랜의 풀업 셋트',
-  price: `${numberWithCommas(100)} 원 / `,
-  amount: `수량: ${100} 개`,
-  img: 'https://zereight.github.io/react-payments/static/media/pullup.befeeb55.gif',
+  price: 100,
+  quantity: 1,
+  image_url:
+    'https://zereight.github.io/react-payments/static/media/pullup.befeeb55.gif',
 };

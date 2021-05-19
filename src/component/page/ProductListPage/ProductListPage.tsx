@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { CONTENT_PER_PAGE, ROUTE } from '../../../constant';
+import { CONTENT_PER_PAGE, MIN_PAGE_INDEX, ROUTE } from '../../../constant';
 import { useModal } from '../../../hook';
 import {
+  increasePageIndex,
   increaseProductAmount,
-  toggleLikedProductList,
-  updatePageIndex,
-  updateProductAmount,
-  updateShoppingCartItemsAsync,
+  toggleLikeProduct,
+  decreasePageIndex,
+  initPageIndex,
+  addShoppingCartItemAsync,
+  updateProductListAsync,
 } from '../../../redux/action';
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { ProductType } from '../../../type';
+import { ProductDetailType, ProductType } from '../../../type';
 import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import ProductListLayout from '../../template/ProductListLayout/ProductListLayout';
@@ -20,25 +22,15 @@ import ProductListLayout from '../../template/ProductListLayout/ProductListLayou
 const ProductListPage = ({ location, history }: RouteComponentProps) => {
   const dispatch = useDispatch();
 
-  const {
-    myShoppingCartId,
-    myShoppingCartProductIds,
-    pageIndex,
-    productList,
-    likedProductIdList,
-  } = useSelector(
+  const { products, shoppingCartProducts, pageIndex } = useSelector(
     ({
-      myShoppingCartReducer,
-      pageIndexReducer,
       productListReducer,
-      likedProductIdListReducer,
+      pageIndexReducer,
+      myShoppingCartReducer,
     }: RootState) => ({
-      myShoppingCartId: myShoppingCartReducer.myShoppingCart.id,
-      myShoppingCartProductIds:
-        myShoppingCartReducer.myShoppingCart.productIdList,
+      products: productListReducer.products,
+      shoppingCartProducts: myShoppingCartReducer.products,
       pageIndex: pageIndexReducer.pageIndex,
-      productList: productListReducer.productList,
-      likedProductIdList: likedProductIdListReducer.likedProductIdList,
     })
   );
 
@@ -50,69 +42,76 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  const likedProductList: Array<ProductType> = [];
-  likedProductIdList.forEach((likedProductId) => {
-    const targetProduct = productList.find(
-      (product: { id: string }) => likedProductId === product.id
-    );
-
-    if (targetProduct) likedProductList.push(targetProduct);
+  const likedProducts: {
+    [key: string]: ProductDetailType;
+  } = {};
+  Object.values(products).forEach((product) => {
+    if (product.liked) {
+      likedProducts[product.product_id] = product;
+    }
   });
 
   const maxPageIndex =
     Math.ceil(
-      (showLikedProduct ? likedProductList : productList).length /
-        CONTENT_PER_PAGE
+      (showLikedProduct ? Object.keys(likedProducts) : Object.keys(products))
+        .length / CONTENT_PER_PAGE
     ) - 1;
 
-  const displayProducts = (
-    showLikedProduct ? likedProductList : productList
+  const recommendedProductList = (
+    Object.values(likedProducts).length >= 3
+      ? Object.values(likedProducts)
+      : Object.values(products)
+  ).map(
+    ({ product_id, image_url, name, price }): ProductType => ({
+      product_id,
+      image_url,
+      name,
+      price,
+    })
+  );
+
+  const displayProductList = (
+    showLikedProduct ? Object.values(likedProducts) : Object.values(products)
   ).slice(pageIndex * CONTENT_PER_PAGE, (pageIndex + 1) * CONTENT_PER_PAGE);
 
   const onClickShoppingCartIcon = (productId: string) => {
-    if (myShoppingCartProductIds.includes(productId)) {
-      dispatch(increaseProductAmount(productId));
+    if (shoppingCartProducts[productId]) {
+      dispatch(increaseProductAmount(products[productId]));
     } else {
-      const newContent = {
-        productIdList: [...myShoppingCartProductIds, productId],
-      };
-      dispatch(updateShoppingCartItemsAsync(myShoppingCartId, newContent)).then(
-        () => {
-          dispatch(updateProductAmount(productId));
-        }
-      );
+      dispatch(addShoppingCartItemAsync(products[productId]));
     }
 
     openModal();
   };
 
-  const onClickLikeButton = (productId: any) => {
-    dispatch(toggleLikedProductList(productId));
+  const onClickLikeButton = (productId: string) => {
+    dispatch(toggleLikeProduct(products[productId]));
   };
 
   const onClickNextPage = () => {
-    const newPageIndex =
-      pageIndex + 1 <= maxPageIndex ? pageIndex + 1 : pageIndex;
-    dispatch(updatePageIndex(newPageIndex));
+    dispatch(increasePageIndex({ min: MIN_PAGE_INDEX, max: maxPageIndex }));
   };
 
   const onClickPrevPage = () => {
-    const newPageIndex = pageIndex < 1 ? 0 : pageIndex - 1;
-    dispatch(updatePageIndex(newPageIndex));
+    dispatch(decreasePageIndex({ min: MIN_PAGE_INDEX, max: maxPageIndex }));
   };
 
   const onClickShowLikedProductButton = () => {
-    dispatch(updatePageIndex(0));
+    dispatch(initPageIndex({ min: MIN_PAGE_INDEX, max: maxPageIndex }));
     setShowLikedProduct((prevState) => !prevState);
   };
+
+  useEffect(() => {
+    dispatch(updateProductListAsync());
+  }, [dispatch]);
 
   return (
     <ScreenContainer route={location.pathname}>
       <ProductListLayout
         onClickShowLikedProductButton={onClickShowLikedProductButton}
         showLikedProduct={showLikedProduct}
-        displayProducts={displayProducts}
-        likedProductIdList={likedProductIdList}
+        displayProductList={displayProductList}
+        likedProducts={likedProducts}
         onClickShoppingCartIcon={onClickShoppingCartIcon}
         onClickLikeButton={onClickLikeButton}
         onClickPrevPage={onClickPrevPage}
@@ -124,9 +123,7 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
       {isModalOpen && (
         <Modal onClickClose={onClickModalClose}>
           <SuccessAddedModal
-            productList={
-              likedProductList.length >= 3 ? likedProductList : productList
-            }
+            productList={recommendedProductList}
             openModal={openModal}
             onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
           />

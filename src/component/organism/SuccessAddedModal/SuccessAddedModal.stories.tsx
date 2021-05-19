@@ -15,22 +15,22 @@ export const Basic = Template.bind({});
 Basic.args = {
   productList: [
     {
-      id: '1',
+      product_id: '1',
       name: 'name1',
-      img: '',
-      price: '123원',
+      image_url: '',
+      price: 123,
     },
     {
-      id: '1',
+      product_id: '1',
       name: 'name1',
-      img: '',
-      price: '123원',
+      image_url: '',
+      price: 123,
     },
     {
-      id: '1',
+      product_id: '1',
       name: 'name1',
-      img: '',
-      price: '123원',
+      image_url: '',
+      price: 123,
     },
   ],
   openModal: () => {},

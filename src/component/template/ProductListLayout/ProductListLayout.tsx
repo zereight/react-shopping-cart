@@ -1,5 +1,4 @@
-import { ProductType } from '../../../type';
-import { numberWithCommas } from '../../../util';
+import { ProductDetailType, ProductType } from '../../../type';
 import ColumnProductItem from '../../molecule/ColumnProductItem/ColumnProductItem';
 import PageIndexNav from '../../molecule/PageIndexNav/PageIndexNav';
 import { Container, LikedProductFilter } from './ProductListLayout.styles';
@@ -8,8 +7,10 @@ interface ProductListPageProps {
   showLikedProduct: boolean;
   maxPageIndex: number;
   pageIndex: number;
-  likedProductIdList: Array<string>;
-  displayProducts: Array<ProductType>;
+  likedProducts: {
+    [key: string]: ProductDetailType;
+  };
+  displayProductList: Array<ProductType>;
   onClickShoppingCartIcon: (id: string) => void;
   onClickLikeButton: (id: string) => void;
   onClickShowLikedProductButton: React.MouseEventHandler<HTMLButtonElement>;
@@ -20,8 +21,8 @@ interface ProductListPageProps {
 const ProductListLayout = ({
   onClickShowLikedProductButton,
   showLikedProduct,
-  displayProducts,
-  likedProductIdList,
+  displayProductList,
+  likedProducts,
   onClickShoppingCartIcon,
   onClickLikeButton,
   onClickPrevPage,
@@ -36,16 +37,16 @@ const ProductListLayout = ({
           {showLikedProduct ? '전체 상품 보기' : '찜한 상품만 보기'}
         </button>
       </LikedProductFilter>
-      {displayProducts.length !== 0 &&
-        displayProducts.map(({ id, img, name, price }) => (
+      {displayProductList.length !== 0 &&
+        displayProductList.map(({ product_id, image_url, name, price }) => (
           <ColumnProductItem
-            key={id}
-            img={img}
+            key={product_id}
+            image_url={image_url}
             name={name}
-            isLiked={likedProductIdList.includes(id)}
-            price={`${numberWithCommas(price)} 원`}
-            onClickShoppingCartIcon={() => onClickShoppingCartIcon(id)}
-            onClickLikeButton={() => onClickLikeButton(id)}
+            isLiked={!!likedProducts[product_id]}
+            price={price}
+            onClickShoppingCartIcon={() => onClickShoppingCartIcon(product_id)}
+            onClickLikeButton={() => onClickLikeButton(product_id)}
             $buttonStyle="simple"
           />
         ))}

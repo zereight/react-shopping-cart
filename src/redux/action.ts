@@ -1,96 +1,139 @@
+import { createAction } from 'redux-actions';
 import { requestTable } from '../api/request';
-import { CUSTOMER_ID, SCHEMA } from '../constant';
-
+import {
+  CartProductDetailType,
+  CartProductType,
+  ProductDetailType,
+  ProductType,
+} from '../type';
 import {
   ACTIVATE_LOADING_SPINNER,
+  ADD_SHOPPING_CART_ITEMS,
+  CHECK_PRODUCT,
   DEACTIVATE_LOADING_SPINNER,
   DECREASE_PRODUCT_AMOUNT,
-  GET_MY_SHOPPING_CART,
   INCREASE_PRODUCT_AMOUNT,
+  REMOVE_SHOPPING_CART_ITEMS,
   TOGGLE_LIKE_PRODUCT,
-  UPDATE_CHECKED_PRODUCT_ITEMS,
-  UPDATE_MY_SHOPPING_CART_ITEMS,
-  UPDATE_PAGE_INDEX,
-  UPDATE_PRODUCT_AMOUNT_LIST,
-  UPDATE_PRODUCT_ITEMS,
+  UNCHECK_PRODUCT,
+  INCREASE_PAGE_INDEX,
+  DECREASE_PAGE_INDEX,
+  UPDATE_PRODUCT_LIST,
+  INIT_PAGE_INDEX,
 } from './actionType';
 import { AppDispatch } from './store';
 
-const activateLoading = () => ({
-  type: ACTIVATE_LOADING_SPINNER,
-});
+const activateLoading = createAction(ACTIVATE_LOADING_SPINNER);
+const deactivateLoading = createAction(DEACTIVATE_LOADING_SPINNER);
 
-const deactivateLoading = () => ({
-  type: DEACTIVATE_LOADING_SPINNER,
-});
+const increasePageIndex = createAction(INCREASE_PAGE_INDEX);
+const decreasePageIndex = createAction(DECREASE_PAGE_INDEX);
+const initPageIndex = createAction(INIT_PAGE_INDEX);
 
-const increaseProductAmount = (productId: string) => ({
-  type: INCREASE_PRODUCT_AMOUNT,
-  productId,
-});
+const increaseProductAmount = createAction(INCREASE_PRODUCT_AMOUNT);
+const decreaseProductAmount = createAction(DECREASE_PRODUCT_AMOUNT);
 
-const decreaseProductAmount = (productId: string) => ({
-  type: DECREASE_PRODUCT_AMOUNT,
-  productId,
-});
+const toggleLikeProduct = createAction(TOGGLE_LIKE_PRODUCT);
 
-const updateProductAmount = (productId: string) => ({
-  type: UPDATE_PRODUCT_AMOUNT_LIST,
-  productId,
-});
+const checkProduct = createAction(CHECK_PRODUCT);
+const unCheckProduct = createAction(UNCHECK_PRODUCT);
 
-const updateCheckedProductItems = (productItems: Array<string>) => ({
-  type: UPDATE_CHECKED_PRODUCT_ITEMS,
-  productItems,
-});
-
-const updateProductItemsAsync = (): any => async (dispatch: AppDispatch) => {
-  try {
-    dispatch(activateLoading());
-    const productItems = await requestTable.GET(SCHEMA.PRODUCT);
-
-    dispatch({
-      type: UPDATE_PRODUCT_ITEMS,
-      productItems,
-    });
-  } catch (error) {
-    console.log(error);
-  } finally {
-    dispatch(deactivateLoading());
-  }
-};
-
-const updateShoppingCartItemsAsync =
-  (
-    targetId: string | undefined,
-    content: { productIdList: Array<string> }
-  ): any =>
+const initShoppingCartItemAsync =
+  (shoppingCartProducts: { [key: string]: CartProductDetailType }) =>
   async (dispatch: AppDispatch) => {
     try {
       dispatch(activateLoading());
-      await requestTable.PUT(SCHEMA.SHOPPING_CART, targetId, content);
+      const dbShoppingCartItemList: Array<CartProductType> =
+        await requestTable.GET('/api/customers/zereight/carts');
 
-      dispatch({
-        type: UPDATE_MY_SHOPPING_CART_ITEMS,
-        productIdList: content.productIdList,
+      dbShoppingCartItemList.forEach((dbItem) => {
+        if (!shoppingCartProducts[dbItem.product_id]) {
+          dispatch(
+            addShoppingCartItem({ quantity: 1, checked: false, ...dbItem })
+          );
+        }
       });
     } catch (error) {
-      console.error(error);
+      console.log(error);
     } finally {
       dispatch(deactivateLoading());
     }
   };
 
-const getMyShoppingCartAsync = (): any => async (dispatch: AppDispatch) => {
+const addShoppingCartItem = createAction(ADD_SHOPPING_CART_ITEMS);
+const addShoppingCartItemAsync =
+  (product: ProductDetailType) => async (dispatch: AppDispatch) => {
+    try {
+      dispatch(activateLoading());
+      const { product_id }: ProductType = product;
+      const response = await requestTable.POST(
+        '/api/customers/zereight/carts',
+        { product_id }
+      );
+
+      if (response.status !== 201) throw new Error(await response.text());
+
+      const dbShoppingCartItemList: Array<CartProductType> =
+        await requestTable.GET('/api/customers/zereight/carts');
+
+      const targetProduct = dbShoppingCartItemList.find(
+        (dbShoppingCartItem) =>
+          dbShoppingCartItem.product_id === product.product_id
+      );
+
+      if (!targetProduct)
+        throw new Error('서버와 동기화하는 것에 실패했습니다.');
+
+      const newProduct: CartProductDetailType = {
+        ...targetProduct,
+        quantity: 1,
+        checked: false,
+      };
+
+      dispatch(addShoppingCartItem(newProduct));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(deactivateLoading());
+    }
+  };
+
+const removeShoppingCartItem = createAction(REMOVE_SHOPPING_CART_ITEMS);
+const removeShoppingCartItemAsync =
+  (product: CartProductDetailType) => async (dispatch: AppDispatch) => {
+    try {
+      dispatch(activateLoading());
+
+      const response = await requestTable.DELETE(
+        `/api/customers/zereight/carts/${product.cart_id}`
+      );
+
+      if (!response.ok) throw new Error(await response.text());
+
+      dispatch(removeShoppingCartItem(product));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch(deactivateLoading());
+    }
+  };
+
+const updateProductList = createAction(UPDATE_PRODUCT_LIST);
+const updateProductListAsync = () => async (dispatch: AppDispatch) => {
   try {
     dispatch(activateLoading());
-    const shoppingCartList =
-      (await requestTable.GET(SCHEMA.SHOPPING_CART)) || [];
 
-    dispatch({
-      type: GET_MY_SHOPPING_CART,
-      myShoppingCart: shoppingCartList[CUSTOMER_ID],
-    });
+    const productList = await requestTable.GET('/api/products');
+    await Promise.all(
+      productList.map((product: ProductType) => {
+        const newProduct: ProductDetailType = {
+          ...product,
+          liked: false,
+        };
+
+        return dispatch(updateProductList(newProduct));
+      })
+    );
   } catch (error) {
     console.log(error);
   } finally {
@@ -98,26 +141,22 @@ const getMyShoppingCartAsync = (): any => async (dispatch: AppDispatch) => {
   }
 };
 
-const updatePageIndex = (pageIndex: number) => ({
-  type: UPDATE_PAGE_INDEX,
-  pageIndex,
-});
-
-const toggleLikedProductList = (productId: string) => ({
-  type: TOGGLE_LIKE_PRODUCT,
-  productId,
-});
-
 export {
+  addShoppingCartItemAsync,
+  removeShoppingCartItemAsync,
   activateLoading,
   deactivateLoading,
-  updateCheckedProductItems,
   increaseProductAmount,
   decreaseProductAmount,
-  updateProductAmount,
-  updateShoppingCartItemsAsync,
-  getMyShoppingCartAsync,
-  updateProductItemsAsync,
-  updatePageIndex,
-  toggleLikedProductList,
+  increasePageIndex,
+  decreasePageIndex,
+  initPageIndex,
+  toggleLikeProduct,
+  addShoppingCartItem,
+  removeShoppingCartItem,
+  checkProduct,
+  unCheckProduct,
+  updateProductList,
+  updateProductListAsync,
+  initShoppingCartItemAsync,
 };

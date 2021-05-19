@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import Button from '../../atom/Button/Button';
 
 const Container = styled.div`
   max-height: 500px;
