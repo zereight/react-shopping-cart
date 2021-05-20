@@ -10,7 +10,6 @@ import {
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
 import Header from '../../atom/Header/Header';
-import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import OrderListLayout from '../../template/OrderListLayout/OrderListLayout';
 
@@ -47,15 +46,15 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
         onClickShoppingCartButton={onClickShoppingCartButton}
       />
 
-      {isModalOpen && (
-        <Modal onClickClose={onClickModalClose}>
-          <SuccessAddedModal
-            productList={recommendedProductList}
-            openModal={openModal}
-            onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
-          />
-        </Modal>
-      )}
+      <SuccessAddedModal
+        isModalOpen={isModalOpen}
+        onClickModalCloseButton={onClickModalClose}
+        productList={recommendedProductList}
+        openModal={openModal}
+        onClickMoveShoppingCartButton={() =>
+          history.push({ pathname: ROUTE.SHOPPING_CART })
+        }
+      />
     </ScreenContainer>
   );
 };

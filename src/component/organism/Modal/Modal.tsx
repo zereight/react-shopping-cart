@@ -4,7 +4,7 @@ import { Dimmer, Container, CloseButton } from './Modal.styles';
 
 interface ModalProps {
   children: React.ReactNode;
-  onClickClose: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onClickClose: React.MouseEventHandler<HTMLDivElement>;
 }
 const Modal = ({ children, onClickClose }: ModalProps) => (
   <ModalPortal>

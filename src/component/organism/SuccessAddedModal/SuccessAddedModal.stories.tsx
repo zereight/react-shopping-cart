@@ -34,5 +34,6 @@ Basic.args = {
     },
   ],
   openModal: () => {},
-  onClick: () => {},
+  onClickMoveShoppingCartButton: () => {},
+  onClickModalCloseButton: () => {},
 };

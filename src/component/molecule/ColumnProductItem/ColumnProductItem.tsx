@@ -16,7 +16,7 @@ interface ColumnProductItemProps extends ItemType {
   isIconsVisible?: boolean;
   isLiked?: boolean;
   onClickShoppingCartButton: React.MouseEventHandler<HTMLButtonElement>;
-  onClickLikeButton: React.MouseEventHandler<HTMLButtonElement>;
+  onClickLikeButton?: React.MouseEventHandler<HTMLButtonElement>;
   $buttonStyle?: ButtonType;
 }
 
@@ -29,7 +29,7 @@ const ColumnProductItem = ({
   isIconsVisible = true,
   isLiked = false,
   onClickShoppingCartButton,
-  onClickLikeButton,
+  onClickLikeButton = () => {},
   $buttonStyle = 'default',
 }: ColumnProductItemProps) => (
   <Container>

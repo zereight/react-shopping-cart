@@ -11,12 +11,10 @@ import {
   decreasePageIndex,
   increasePageIndex,
   initPageIndex,
-  toggleLikeProduct,
   updateProductListAsync,
 } from '../../../redux/action';
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import ProductListLayout from '../../template/ProductListLayout/ProductListLayout';
 
@@ -44,7 +42,7 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
     onClickTrigger: onClickShoppingCartButton,
   } = useSuccessAddedModal(shoppingCartProducts, products);
 
-  const { likedProducts } = useLikedProducts(products);
+  const { likedProducts, onClickLikeButton } = useLikedProducts(products);
   const { recommendedProductList } = useRecommendProduct(
     products,
     likedProducts
@@ -59,10 +57,6 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
   const displayProductList = (
     showLikedProduct ? Object.values(likedProducts) : Object.values(products)
   ).slice(pageIndex * CONTENT_PER_PAGE, (pageIndex + 1) * CONTENT_PER_PAGE);
-
-  const onClickLikeButton = (productId: string) => {
-    dispatch(toggleLikeProduct(products[productId]));
-  };
 
   const onClickNextPage = () => {
     dispatch(increasePageIndex({ min: MIN_PAGE_INDEX, max: maxPageIndex }));
@@ -96,15 +90,15 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
         maxPageIndex={maxPageIndex}
       />
 
-      {isModalOpen && (
-        <Modal onClickClose={onClickModalClose}>
-          <SuccessAddedModal
-            productList={recommendedProductList}
-            openModal={openModal}
-            onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
-          />
-        </Modal>
-      )}
+      <SuccessAddedModal
+        isModalOpen={isModalOpen}
+        onClickModalCloseButton={onClickModalClose}
+        productList={recommendedProductList}
+        openModal={openModal}
+        onClickMoveShoppingCartButton={() =>
+          history.push({ pathname: ROUTE.SHOPPING_CART })
+        }
+      />
     </ScreenContainer>
   );
 };

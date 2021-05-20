@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { ROUTE } from '../../../constant';
-import { useModal } from '../../../hook';
+import { useSuccessAddedModal } from '../../../hook';
 import {
   addShoppingCartItemAsync,
   increaseProductAmount,
@@ -9,7 +9,6 @@ import {
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
 import { ProductDetailType, ProductType } from '../../../type';
-import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import ProductDetailLayout from '../../template/ProductDetailLayout/ProductDetailLayout';
 
@@ -31,11 +30,10 @@ const ProductDetailPage = ({
     })
   );
 
-  const {
-    isModalOpen,
-    open: openModal,
-    onClickClose: onClickModalClose,
-  } = useModal(false);
+  const { isModalOpen, onClickModalClose, openModal } = useSuccessAddedModal(
+    shoppingCartProducts,
+    products
+  );
 
   if (!products[productId]) {
     history.push({ pathname: ROUTE.HOME });
@@ -81,15 +79,15 @@ const ProductDetailPage = ({
         onClickShoppingCartButton={onClickShoppingCartButton}
       />
 
-      {isModalOpen && (
-        <Modal onClickClose={onClickModalClose}>
-          <SuccessAddedModal
-            productList={recommendedProductList}
-            openModal={openModal}
-            onClick={() => history.push({ pathname: ROUTE.SHOPPING_CART })}
-          />
-        </Modal>
-      )}
+      <SuccessAddedModal
+        isModalOpen={isModalOpen}
+        onClickModalCloseButton={onClickModalClose}
+        productList={recommendedProductList}
+        openModal={openModal}
+        onClickMoveShoppingCartButton={() =>
+          history.push({ pathname: ROUTE.SHOPPING_CART })
+        }
+      />
     </ScreenContainer>
   );
 };
