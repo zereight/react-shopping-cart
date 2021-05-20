@@ -43,7 +43,11 @@ const ShoppingCartItemList = ({
                 onClick={onClickCheckBox}
                 isChecked={isChecked}
               />
-              <RowProductItem image_url={image_url} name={name} />
+              <RowProductItem
+                product_id={product_id}
+                image_url={image_url}
+                name={name}
+              />
             </ShoppingCartItem>
 
             <ShoppingCartItemOption>

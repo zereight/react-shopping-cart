@@ -41,6 +41,7 @@ const ProductListLayout = ({
         displayProductList.map(({ product_id, image_url, name, price }) => (
           <ColumnProductItem
             key={product_id}
+            product_id={product_id}
             image_url={image_url}
             name={name}
             isLiked={!!likedProducts[product_id]}

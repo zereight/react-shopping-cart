@@ -27,6 +27,7 @@ const OrderListLayout = ({
             return (
               <OrderItemContainer key={product_id}>
                 <RowProductItem
+                  product_id={product_id}
                   image_url={image_url}
                   name={name}
                   price={price * quantity}

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { ROUTE } from '../../../constant';
 import { ItemType } from '../../../type';
 import { numberWithCommas } from '../../../util';
 import {
@@ -9,16 +11,20 @@ import {
 } from './RowProductItem.styles';
 
 interface RowProductItemProps extends Partial<ItemType> {
+  product_id: string;
   quantity?: number;
 }
 const RowProductItem = ({
+  product_id,
   image_url = 'https://lh3.googleusercontent.com/proxy/1c4QW5NSZSE7GWkRDMJC-0fBKuXA0rOGWy3b7orSCWSui-lGrgG7yx03uivU67j0Rm2bWAdF46VvqAnW2mFJ3n-EQDu1fr7XzQey',
   name = '',
   price,
   quantity,
 }: RowProductItemProps) => (
   <Container>
-    <Image src={image_url} />
+    <Link to={ROUTE.GET_PRODUCT_DETAIL(product_id)}>
+      <Image src={image_url} />
+    </Link>
     <ProductContainer>
       <Name>{name}</Name>
       <ProductDetail>

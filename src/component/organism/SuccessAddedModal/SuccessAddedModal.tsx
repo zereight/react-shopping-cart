@@ -41,6 +41,7 @@ const SuccessAddedModal = ({
               .map(({ product_id, image_url, name, price }) => (
                 <ColumnProductItem
                   key={product_id}
+                  product_id={product_id}
                   image_url={image_url}
                   name={name}
                   price={price}

@@ -1,18 +1,20 @@
+import { Link } from 'react-router-dom';
+import productNotFoundImg from '../../../asset/img/empty_page.png';
+import { ROUTE } from '../../../constant';
+import { ProductType } from '../../../type';
+import { numberWithCommas } from '../../../util';
+import Button, { ButtonType } from '../../atom/Button/Button';
+import ShoppingCartIcon from '../../atom/ShoppingCartIcon/ShoppingCartIcon';
 import {
   Container,
-  Image,
   DetailContainer,
-  ProductDetail,
+  Image,
   Name,
   Price,
+  ProductDetail,
 } from './ColumnProductItem.styles';
-import productNotFoundImg from '../../../asset/img/empty_page.png';
-import ShoppingCartIcon from '../../atom/ShoppingCartIcon/ShoppingCartIcon';
-import Button, { ButtonType } from '../../atom/Button/Button';
-import { ItemType } from '../../../type';
-import { numberWithCommas } from '../../../util';
 
-interface ColumnProductItemProps extends ItemType {
+interface ColumnProductItemProps extends ProductType {
   isIconsVisible?: boolean;
   isLiked?: boolean;
   onClickShoppingCartButton: React.MouseEventHandler<HTMLButtonElement>;
@@ -23,6 +25,7 @@ interface ColumnProductItemProps extends ItemType {
 const ACTIVE = 1;
 const DEACTIVE = 0.6;
 const ColumnProductItem = ({
+  product_id,
   image_url = productNotFoundImg,
   name,
   price,
@@ -33,7 +36,9 @@ const ColumnProductItem = ({
   $buttonStyle = 'default',
 }: ColumnProductItemProps) => (
   <Container>
-    <Image src={image_url} loading="lazy" />
+    <Link to={ROUTE.GET_PRODUCT_DETAIL(product_id)}>
+      <Image src={image_url} loading="lazy" />
+    </Link>
     <DetailContainer>
       <ProductDetail>
         <Name>{name}</Name>
