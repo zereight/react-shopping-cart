@@ -45,7 +45,7 @@ const myShoppingCartReducer = (
       const product = action.payload;
 
       return produce(state, (draft) => {
-        draft.products[product.product_id].quantity += 1; // TODO: 최대값 처리 해주기
+        draft.products[product.product_id].quantity += 1;
       });
     }
     case DECREASE_PRODUCT_AMOUNT: {

@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
-import { ROUTE } from '../../../constant';
+import { ORDER_QUERY, ROUTE } from '../../../constant';
 import {
   useLikedProducts,
   useRecommendProduct,
@@ -26,9 +26,8 @@ const OrderDetailPage = ({
   history,
 }: RouteComponentProps<MatchParams>) => {
   const { id: orderId } = match.params;
-  const { value: orderList }: { value: Array<OrderType> } = useServerAPI(
-    '/api/customers/zereight/orders'
-  );
+  const { value: orderList }: { value: Array<OrderType> } =
+    useServerAPI(ORDER_QUERY);
 
   const targetOrder = orderList.find(
     (order) => Number(order.order_id) === Number(orderId)

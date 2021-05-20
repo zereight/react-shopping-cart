@@ -1,5 +1,6 @@
 import { createAction } from 'redux-actions';
 import { requestTable } from '../api/request';
+import { CART_QUERY, FAIL_MESSAGE, PRODUCT_QUERY } from '../constant';
 import {
   CartProductDetailType,
   CartProductType,
@@ -11,15 +12,15 @@ import {
   ADD_SHOPPING_CART_ITEMS,
   CHECK_PRODUCT,
   DEACTIVATE_LOADING_SPINNER,
+  DECREASE_PAGE_INDEX,
   DECREASE_PRODUCT_AMOUNT,
+  INCREASE_PAGE_INDEX,
   INCREASE_PRODUCT_AMOUNT,
+  INIT_PAGE_INDEX,
   REMOVE_SHOPPING_CART_ITEMS,
   TOGGLE_LIKE_PRODUCT,
   UNCHECK_PRODUCT,
-  INCREASE_PAGE_INDEX,
-  DECREASE_PAGE_INDEX,
   UPDATE_PRODUCT_LIST,
-  INIT_PAGE_INDEX,
 } from './actionType';
 import { AppDispatch } from './store';
 
@@ -44,23 +45,19 @@ const addShoppingCartItemAsync =
     try {
       dispatch(activateLoading());
       const { product_id }: ProductType = product;
-      const response = await requestTable.POST(
-        '/api/customers/zereight/carts',
-        { product_id }
-      );
+      const response = await requestTable.POST(CART_QUERY, { product_id });
 
       if (response.status !== 201) throw new Error(await response.text());
 
       const dbShoppingCartItemList: Array<CartProductType> =
-        await requestTable.GET('/api/customers/zereight/carts');
+        await requestTable.GET(CART_QUERY);
 
       const targetProduct = dbShoppingCartItemList.find(
         (dbShoppingCartItem) =>
           dbShoppingCartItem.product_id === product.product_id
       );
 
-      if (!targetProduct)
-        throw new Error('서버와 동기화하는 것에 실패했습니다.');
+      if (!targetProduct) throw new Error(FAIL_MESSAGE.SYNC_WITH_SERVER);
 
       const newProduct: CartProductDetailType = {
         ...targetProduct,
@@ -83,7 +80,7 @@ const removeShoppingCartItemAsync =
       dispatch(activateLoading());
 
       const response = await requestTable.DELETE(
-        `/api/customers/zereight/carts/${product.cart_id}`
+        `${CART_QUERY}${product.cart_id}`
       );
 
       if (!response.ok) throw new Error(await response.text());
@@ -101,7 +98,7 @@ const updateProductListAsync = () => async (dispatch: AppDispatch) => {
   try {
     dispatch(activateLoading());
 
-    const productList = await requestTable.GET('/api/products');
+    const productList = await requestTable.GET(PRODUCT_QUERY);
     await Promise.all(
       productList.map((product: ProductType) => {
         const newProduct: ProductDetailType = {
