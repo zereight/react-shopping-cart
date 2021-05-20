@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux';
 import { Redirect } from 'react-router';
 import { RouteComponentProps } from 'react-router-dom';
-import { CONFIRM_MESSAGE, ROUTE } from '../../../constant';
+import { CONFIRM_MESSAGE, ORDER_QUERY, ROUTE } from '../../../constant';
 import { useServerAPI } from '../../../hook';
 import { removeShoppingCartItem } from '../../../redux/action';
 import ScreenContainer from '../../../style/ScreenContainer';
@@ -12,10 +12,7 @@ import OrderCheckoutLayout from '../../template/OrderCheckLayout/OrderCheckLayou
 const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
   const dispatch = useDispatch();
 
-  // TODO: 주소 상수화
-  const { postData: createOrder } = useServerAPI(
-    `/api/customers/zereight/orders`
-  );
+  const { postData: createOrder } = useServerAPI(ORDER_QUERY);
 
   if (!location.state) return <Redirect to={ROUTE.HOME} />;
 
@@ -42,7 +39,7 @@ const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
       quantity: product.quantity,
     }));
 
-    createOrder('/api/customers/zereight/orders', newOrder).then(() => {
+    createOrder(ORDER_QUERY, newOrder).then(() => {
       Promise.all(
         checkedProductList.map((product) =>
           dispatch(removeShoppingCartItem(product))

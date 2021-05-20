@@ -11,7 +11,7 @@ import ScreenContainer from '../../../style/ScreenContainer';
 import { ProductDetailType, ProductType } from '../../../type';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import ProductDetailLayout from '../../template/ProductDetailLayout/ProductDetailLayout';
-// TODO: store.dispatch 하던거 제거
+
 interface MatchParams {
   id: string;
 }

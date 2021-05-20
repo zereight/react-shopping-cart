@@ -14,6 +14,8 @@
     "@types/react-dom": "^17.0.0",
     "@types/redux-actions": "^2.6.1",
     "firebase": "^8.6.1",
+    "firebase-tools": "^9.11.0",
+    "global": "^4.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",

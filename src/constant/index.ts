@@ -1,6 +1,7 @@
 import { ROUTE } from './route';
 import { SCHEMA } from './schema';
-import { CONFIRM_MESSAGE } from './message';
+import { CONFIRM_MESSAGE, FAIL_MESSAGE } from './message';
+import { ORDER_QUERY, CART_QUERY, PRODUCT_QUERY } from './api';
 
 const MIN_PAGE_INDEX = 0;
 
@@ -27,4 +28,8 @@ export {
   CONFIRM_MESSAGE,
   AMOUNT_COUNTER_FLAG,
   CUSTOMER_ID,
+  ORDER_QUERY,
+  CART_QUERY,
+  PRODUCT_QUERY,
+  FAIL_MESSAGE,
 };

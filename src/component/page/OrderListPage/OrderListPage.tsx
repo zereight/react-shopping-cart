@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { ROUTE } from '../../../constant';
+import { ORDER_QUERY, ROUTE } from '../../../constant';
 import {
   useLikedProducts,
   useRecommendProduct,
@@ -15,9 +15,8 @@ import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModa
 import OrderListLayout from '../../template/OrderListLayout/OrderListLayout';
 
 const OrderListPage = ({ history, location }: RouteComponentProps) => {
-  const { value: orderList }: { value: Array<OrderType> } = useServerAPI(
-    '/api/customers/zereight/orders'
-  );
+  const { value: orderList }: { value: Array<OrderType> } =
+    useServerAPI(ORDER_QUERY);
 
   const { products, shoppingCartProducts } = useSelector(
     ({ productListReducer, myShoppingCartReducer }: RootState) => ({
