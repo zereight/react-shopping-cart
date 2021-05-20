@@ -8,6 +8,7 @@ import {
 import Spinner from './component/atom/Spinner/Spinner';
 import GlobalNavbar from './component/organism/GlobalNavBar/GlobalNavBar';
 import OrderCheckoutPage from './component/page/OrderCheckPage/OrderCheckPage';
+import OrderDetailPage from './component/page/OrderDetailPage/OrderDetailPage';
 import OrderListPage from './component/page/OrderListPage/OrderListPage';
 import ProductDetailPage from './component/page/ProductDetailPage/ProductDetailPage';
 import ProductListPage from './component/page/ProductListPage/ProductListPage';
@@ -37,6 +38,7 @@ const App = () => {
             component={ShoppingCartPage}
           />
           <Route exact path={ROUTE.ORDER_LIST} component={OrderListPage} />
+          <Route path={ROUTE.ORDER_DETAIL} component={OrderDetailPage} />
           <Route
             exact
             path={ROUTE.ORDER_CHECKOUT}

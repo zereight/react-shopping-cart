@@ -10,8 +10,8 @@ interface PaymentInfoBoxProps {
   title: string;
   detailText: string;
   price: string;
-  buttonText: string;
-  onClick: React.MouseEventHandler<HTMLButtonElement>;
+  buttonText?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
   isDisable?: boolean;
 }
 
@@ -19,8 +19,8 @@ const PaymentInfoBox = ({
   title,
   detailText,
   price,
-  buttonText,
-  onClick,
+  buttonText = '',
+  onClick = () => {},
   isDisable = false,
 }: PaymentInfoBoxProps) => (
   <Container>
@@ -30,9 +30,11 @@ const PaymentInfoBox = ({
         <span>{detailText}</span>
         <span>{price}</span>
       </PaymentDetail>
-      <PaymentButton onClick={onClick} disabled={isDisable}>
-        {buttonText}
-      </PaymentButton>
+      {buttonText && (
+        <PaymentButton onClick={onClick} disabled={isDisable}>
+          {buttonText}
+        </PaymentButton>
+      )}
     </Content>
   </Container>
 );
