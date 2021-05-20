@@ -6,7 +6,8 @@ const Container = styled.div`
 `;
 const Image = styled.img`
   width: 100%;
-  object-fit: cover;
+  height: 150px;
+  object-fit: contain;
 `;
 
 const DetailContainer = styled.div`
