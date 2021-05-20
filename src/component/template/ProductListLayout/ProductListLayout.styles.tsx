@@ -6,7 +6,7 @@ const Container = styled.div`
   grid-column-gap: 45px;
   place-items: center;
   place-content: start center;
-  min-height: 1540px;
+  min-height: 1000px;
 
   @media screen and (max-width: 1259px) {
     grid-template-columns: repeat(3, 1fr);

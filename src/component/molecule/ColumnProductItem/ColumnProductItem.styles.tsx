@@ -12,8 +12,13 @@ const Image = styled.img`
 
 const DetailContainer = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   align-items: center;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
 `;
 
 const ProductDetail = styled.div`
@@ -31,4 +36,12 @@ const Price = styled.div`
   font-size: 1.2rem;
 `;
 
-export { Container, Image, DetailContainer, ProductDetail, Name, Price };
+export {
+  Container,
+  Image,
+  DetailContainer,
+  ProductDetail,
+  Name,
+  Price,
+  IconContainer,
+};

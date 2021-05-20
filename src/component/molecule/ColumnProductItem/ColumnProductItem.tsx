@@ -12,6 +12,7 @@ import {
   Name,
   Price,
   ProductDetail,
+  IconContainer,
 } from './ColumnProductItem.styles';
 
 interface ColumnProductItemProps extends ProductType {
@@ -45,7 +46,7 @@ const ColumnProductItem = ({
         <Price>{`${numberWithCommas(price)} 원`}</Price>
       </ProductDetail>
       {isIconsVisible && (
-        <>
+        <IconContainer>
           <Button
             onClick={onClickLikeButton}
             $opacity={isLiked ? ACTIVE : DEACTIVE}
@@ -59,7 +60,7 @@ const ColumnProductItem = ({
           >
             <ShoppingCartIcon scale="0.6" color="black" />
           </Button>
-        </>
+        </IconContainer>
       )}
     </DetailContainer>
   </Container>
