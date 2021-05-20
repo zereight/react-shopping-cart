@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CONTENT_PER_PAGE, MIN_PAGE_INDEX, ROUTE } from '../../../constant';
-import { useModal } from '../../../hook';
+import { useLikedProducts, useModal, useRecommendProduct } from '../../../hook';
 import {
   increasePageIndex,
   increaseProductAmount,
@@ -43,35 +43,17 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  const likedProducts: {
-    [key: string]: ProductDetailType;
-  } = {};
-  Object.values(products).forEach((product) => {
-    if (product.liked) {
-      likedProducts[product.product_id] = product;
-    }
-  });
-
-  
-
-  const recommendedProductList = (
-    Object.values(likedProducts).length >= 3
-      ? Object.values(likedProducts)
-      : Object.values(products)
-  ).map(
-    ({ product_id, image_url, name, price }): ProductType => ({
-      product_id,
-      image_url,
-      name,
-      price,
-    })
+  const { likedProducts } = useLikedProducts(products);
+  const { recommendedProductList } = useRecommendProduct(
+    products,
+    likedProducts
   );
-  
+
   const maxPageIndex =
-  Math.ceil(
-    (showLikedProduct ? Object.keys(likedProducts) : Object.keys(products))
-      .length / CONTENT_PER_PAGE
-  ) - 1;
+    Math.ceil(
+      (showLikedProduct ? Object.keys(likedProducts) : Object.keys(products))
+        .length / CONTENT_PER_PAGE
+    ) - 1;
 
   const displayProductList = (
     showLikedProduct ? Object.values(likedProducts) : Object.values(products)

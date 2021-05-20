@@ -1,7 +1,12 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { ROUTE } from '../../../constant';
-import { useModal, useServerAPI } from '../../../hook';
+import {
+  useLikedProducts,
+  useModal,
+  useRecommendProduct,
+  useServerAPI,
+} from '../../../hook';
 import {
   addShoppingCartItemAsync,
   increaseProductAmount,
@@ -32,27 +37,10 @@ const OrderListPage = ({ history, location }: RouteComponentProps) => {
     onClickClose: onClickModalClose,
   } = useModal(false);
 
-  // TODO: 상품 목록 페이지와 중복
-  const likedProducts: {
-    [key: string]: ProductDetailType;
-  } = {};
-  Object.values(products).forEach((product) => {
-    if (product.liked) {
-      likedProducts[product.product_id] = product;
-    }
-  });
-
-  const recommendedProductList = (
-    Object.values(likedProducts).length >= 3
-      ? Object.values(likedProducts)
-      : Object.values(products)
-  ).map(
-    ({ product_id, image_url, name, price }): ProductType => ({
-      product_id,
-      image_url,
-      name,
-      price,
-    })
+  const { likedProducts } = useLikedProducts(products);
+  const { recommendedProductList } = useRecommendProduct(
+    products,
+    likedProducts
   );
 
   // TODO: 상품 목록 페이지와 중복

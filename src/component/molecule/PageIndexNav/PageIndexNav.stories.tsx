@@ -1,4 +1,3 @@
-// TODO
 import { Meta, Story } from '@storybook/react';
 import PageIndexNav, { PageIndexNavProps } from './PageIndexNav';
 

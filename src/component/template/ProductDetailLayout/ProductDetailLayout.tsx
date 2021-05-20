@@ -1,6 +1,5 @@
 import { ProductType } from '../../../type';
 import { numberWithCommas } from '../../../util';
-import Button from '../../atom/Button/Button';
 import {
   Container,
   Image,
