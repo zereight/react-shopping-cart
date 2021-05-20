@@ -2,19 +2,20 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { CONTENT_PER_PAGE, MIN_PAGE_INDEX, ROUTE } from '../../../constant';
-import { useLikedProducts, useModal, useRecommendProduct } from '../../../hook';
 import {
-  increasePageIndex,
-  increaseProductAmount,
-  toggleLikeProduct,
+  useLikedProducts,
+  useRecommendProduct,
+  useSuccessAddedModal,
+} from '../../../hook';
+import {
   decreasePageIndex,
+  increasePageIndex,
   initPageIndex,
-  addShoppingCartItemAsync,
+  toggleLikeProduct,
   updateProductListAsync,
 } from '../../../redux/action';
 import { RootState } from '../../../redux/store';
 import ScreenContainer from '../../../style/ScreenContainer';
-import { ProductDetailType, ProductType } from '../../../type';
 import Modal from '../../organism/Modal/Modal';
 import SuccessAddedModal from '../../organism/SuccessAddedModal/SuccessAddedModal';
 import ProductListLayout from '../../template/ProductListLayout/ProductListLayout';
@@ -36,12 +37,12 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
 
   const [showLikedProduct, setShowLikedProduct] = useState<boolean>(false);
 
-  // TODO: 모달 부분 중복 처리해주기
   const {
     isModalOpen,
-    open: openModal,
-    onClickClose: onClickModalClose,
-  } = useModal(false);
+    onClickModalClose,
+    openModal,
+    onClickTrigger: onClickShoppingCartButton,
+  } = useSuccessAddedModal(shoppingCartProducts, products);
 
   const { likedProducts } = useLikedProducts(products);
   const { recommendedProductList } = useRecommendProduct(
@@ -58,16 +59,6 @@ const ProductListPage = ({ location, history }: RouteComponentProps) => {
   const displayProductList = (
     showLikedProduct ? Object.values(likedProducts) : Object.values(products)
   ).slice(pageIndex * CONTENT_PER_PAGE, (pageIndex + 1) * CONTENT_PER_PAGE);
-
-  const onClickShoppingCartButton = (productId: string) => {
-    if (shoppingCartProducts[productId]) {
-      dispatch(increaseProductAmount(products[productId]));
-    } else {
-      dispatch(addShoppingCartItemAsync(products[productId]));
-    }
-
-    openModal();
-  };
 
   const onClickLikeButton = (productId: string) => {
     dispatch(toggleLikeProduct(products[productId]));

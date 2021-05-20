@@ -11,7 +11,8 @@ import OrderCheckoutLayout from '../../template/OrderCheckLayout/OrderCheckLayou
 
 const OrderCheckoutPage = ({ history, location }: RouteComponentProps) => {
   const dispatch = useDispatch();
-  // TODO: 굳이 이렇게 써야할까?
+
+  // TODO: 주소 상수화
   const { postData: createOrder } = useServerAPI(
     `/api/customers/zereight/orders`
   );
